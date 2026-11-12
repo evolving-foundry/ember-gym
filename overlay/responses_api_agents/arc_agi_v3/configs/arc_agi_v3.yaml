@@ -1,0 +1,20 @@
+arc_agi_v3_agent:
+  responses_api_agents:
+    arc_agi_v3_agent:
+      entrypoint: app.py
+      domain: agent
+      description: Self-contained ARC-AGI-3 game-loop agent (interactive reasoning benchmark).
+      value: Improve exploration, goal discovery, and action efficiency in novel interactive environments.
+      # VLM 选型后期再定(设计决议 #4):切换模型只改 model_server 引用,agent 代码零改动。
+      # The referenced model must be a VLM; text-only models cannot see the game frames.
+      model_server:
+        type: responses_api_models
+        name: policy_model
+      concurrency: 2            # 在线游戏 + 高 token 开销,并发保守起步(设计 §4)
+      request_timeout_s: 120
+      default_max_actions: 150
+      history_window: 6
+      temperature: 0.0
+      use_tool_call: true
+      efficiency_weighting: false
+      api_base: ${oc.env:ARC_AGI_V3_API_BASE,https://three.arcprize.org}

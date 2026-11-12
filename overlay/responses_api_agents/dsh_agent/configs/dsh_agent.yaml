@@ -1,0 +1,13 @@
+# dsh agent harness config. `resources_server.name` is filled by the benchmark
+# config that chains this agent to a concrete resources server.
+dsh_agent:
+  responses_api_agents:
+    dsh_agent:
+      entrypoint: app.py
+      resources_server:
+        type: resources_servers
+        name: ???
+      concurrency: 4
+      timeout: 600
+      dsh_command: dsh
+      profile: headless

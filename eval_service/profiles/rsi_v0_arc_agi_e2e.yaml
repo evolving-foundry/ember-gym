@@ -1,0 +1,47 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Purpose-built E2E profile: external dsh(TS) RSI outer loop → eval_service → real gym rollouts
+# on ARC-AGI (public evaluation split, 400 tasks; per-task reward is 0/1 grid exact match,
+# resources_servers/arc_agi/app.py, aggregate metric = reward_mean).
+# The `dsh` adapter deliberately points at the benchmark-coupled config (config_dsh.yaml chains
+# the arc_agi deterministic verifier + dsh_agent) because EvalService passes only
+# adapter.config_paths to `gym eval run`. No `model:` pin — dsh brings its own credentials, so
+# the runner emits no model flags. Dataset is Git-ignored but prepared locally with the
+# unified staged-data entry point:
+#   bash scripts/prepare_data.sh prepare arc-agi
+#   bash scripts/prepare_data.sh render arc-agi
+# The render step reads benchmarks/prompts/generic/arc.yaml through GymLayout and writes the
+# materialized JSONL required by `gym eval run --no-serve --input`.
+profile_id: rsi-v0-arc-agi-e2e
+
+adapters:
+  dsh:
+    # harness_agent is the composition key the running config registers the agent under
+    # (top-level `arc_agi_dsh_agent` in config_dsh.yaml), not the instance name `dsh_agent` —
+    # nemo_gym.rollout_collection._validate_agent_names resolves --agent against top-level keys.
+    harness_agent: arc_agi_dsh_agent
+    version: "1"
+    config_paths:
+      - benchmarks/arc-agi/config_dsh.yaml
+    description: >-
+      dsh CLI harness (headless one-shot subprocess, self-held credentials) wired to the arc-agi
+      server stack; deterministic 0/1 grid exact-match verification.
+
+benchmarks:
+  arc-agi:
+    # Materialized TaskData rows (nemo_gym.prompt.materialize_prompts, prompt_config
+    # benchmarks/prompts/generic/arc.yaml) — `gym eval run --no-serve --input` requires
+    # rows that already carry responses_create_params.
+    dataset_fpath: benchmarks/arc-agi/data/arc_agi_benchmark_materialized.jsonl
+    # OF-2: no holdout registered for E2E — the promotion pipeline is out of scope here.
+    holdout_dataset_fpath: null
+    dataset_version: v2026.09.24
+    config_paths: []
+    # Initial probe budget: 8 of the 400 tasks per probe evaluation (design §3.7).
+    probe_split_size: 8
+
+budgets:
+  split_eval_soft_limit: 10
+  lineage_max_evals: 500
+  lineage_max_tokens: 2000000000

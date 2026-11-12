@@ -1,0 +1,14 @@
+# Override the arc-agi dsh agent so it executes a materialized RSI DSH candidate
+# launched via RSI_DSH_COMMAND, instead of a self-held-credential DSH checkout.
+# Merged over benchmarks/arc-agi/config_dsh.yaml (later root configs win): the
+# base entrypoint/resources_server/concurrency/datasets are kept, and dsh_command/
+# workspace_root are added here. eval_service composes benchmark.config_paths +
+# adapter.config_paths in that order, matching the proven GAIA dsh_candidate setup.
+arc_agi_dsh_agent:
+  responses_api_agents:
+    dsh_agent:
+      dsh_command: ${oc.env:RSI_DSH_COMMAND}
+      workspace_root: ${oc.env:RSI_DSH_WORKSPACE_ROOT}
+      # 1800s base timeout preserved from config_dsh.yaml (slow tail: single-path
+      # rollouts measured 242-701s, slower under 4-way concurrency).
+      timeout: ${oc.env:RSI_DSH_TIMEOUT_S,1800}

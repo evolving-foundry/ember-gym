@@ -1,0 +1,12 @@
+# Self-contained ARC-AGI-3 composition (BrowserGym pattern): the game-loop
+# agent owns the environment interaction and returns the environment-side
+# reward, so no separate resources server is chained here.
+arc_agi_v3_agent:
+  responses_api_agents:
+    arc_agi_v3_agent:
+      datasets:
+      - name: arc-agi-v3
+        type: benchmark
+        jsonl_fpath: benchmarks/arc-agi-v3/data/arc_agi_v3_games.jsonl
+        prompt_config: benchmarks/prompts/arc_v3/agent.yaml
+        prepare_script: benchmarks/arc-agi-v3/prepare.py

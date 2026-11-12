@@ -1,0 +1,29 @@
+name: synth-curator-docx-pdf-ocr-e2e
+version: 0.1.0
+experimental: true
+kind: benchmark
+integration_profile: custom-gym-agent-loop
+domain: agent
+description: DataForge Gym-native environment package curator-docx-pdf-ocr-e2e
+modality: text
+licensing: Apache-2.0
+authors:
+- DataForge
+reward:
+  range:
+  - 0.0
+  - 1.0
+  higher_is_better: true
+determinism: seeded
+resources_server: synth_env
+agent_server: synth_env_agent
+model_server: policy_model
+datasets:
+- name: synth-curator-docx-pdf-ocr-e2e
+  type: benchmark
+  jsonl_fpath: benchmarks/synth-curator-docx-pdf-ocr-e2e/data/synth-curator-docx-pdf-ocr-e2e.jsonl
+  prepare_script: benchmarks/synth-curator-docx-pdf-ocr-e2e/prepare.py
+  num_repeats: 1
+prompt_source: prepared
+canonical_split: benchmark
+lifecycle: active

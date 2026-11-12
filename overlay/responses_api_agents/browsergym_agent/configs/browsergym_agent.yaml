@@ -1,0 +1,17 @@
+browsergym_agent:
+  responses_api_agents:
+    browsergym_agent:
+      entrypoint: app.py
+      domain: agent
+      description: BrowserGym agent for WebArena-Verified and WorkArena tasks.
+      value: Improve multi-step browser interaction and task completion.
+      model_server:
+        type: responses_api_models
+        name: policy_model
+      concurrency: 1
+      max_steps: 50
+      request_timeout_s: 180
+      action_max_chars: 12000
+      observation_max_chars: 50000
+      temperature: 0.0
+      har_dir: ${oc.env:BROWSERGYM_HAR_DIR,results/browsergym_har}

@@ -1,0 +1,39 @@
+# Rubric-judged benchmark profile (design doc §3.3 / §5.3 scenario C): benchmarks without a
+# programmatic verifier are scored by the rubric judgment adapter (eval_service/rubric_judge.py)
+# against a frozen rubric library snapshot exported by DataDesigner
+# (evidence_scope=frozen_seed_only, §4.5). The snapshot path and its rubric_library_sha256 are
+# pinned below; the snapshot file content joins the harness manifest (HF-1), so any snapshot
+# drift changes the digest and breaks cross-lineage comparison instead of mixing scores.
+# Requires the rubric extra (one-way Gym → data_designer dependency): uv sync --extra rubric.
+profile_id: rsi-v1-rubric-critic
+
+adapters:
+  dsh:
+    harness_agent: synth_npu_faultdiag_v2_dsh_agent
+    version: "1"
+    config_paths:
+      - benchmarks/synth-npu-faultdiag-v2/config_dsh.yaml
+    description: >-
+      dsh CLI harness wired to the synth_env server stack; rollout final answers are scored by
+      the rubric judgment adapter instead of a programmatic verifier.
+
+benchmarks:
+  synth-npu-faultdiag-rubric:
+    dataset_fpath: tmp/rubric_critic/data/synth-npu-faultdiag-rubric_materialized.jsonl
+    dataset_version: v2026.11.05
+    config_paths: []
+    probe_split_size: 4
+    # §7.2: a missing/tampered/mismatched snapshot refuses to start (RUBRIC_LIBRARY_MISMATCH),
+    # before any rollout runs. Replace the placeholder digest with the snapshot's exported
+    # rubric_library_sha256.
+    rubric_library_fpath: data/rubric/faultdiag_snapshot_v1.json
+    rubric_library_sha256: sha256:0000000000000000000000000000000000000000000000000000000000000000
+    # RuACT protocol anchor: rollout responses to one query are judged as a complete group.
+    rubric_group_size: 8
+    rubric_judge:
+      # Binary rubric protocol anchors the judge at temperature 0 (design doc §3.3).
+      name: REPLACE_WITH_JUDGE_MODEL
+      temperature: 0.0
+      # Endpoint credentials flow through the HEALTHBENCH_JUDGE_* env channel (§6.4); the env
+      # NAMES below are hashed into the manifest without their values.
+      manifest_env: [HEALTHBENCH_JUDGE_API_BASE, HEALTHBENCH_JUDGE_API_KEY]

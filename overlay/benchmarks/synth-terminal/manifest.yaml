@@ -1,0 +1,31 @@
+name: synth-terminal
+version: 0.1.0
+experimental: true
+kind: benchmark
+integration_profile: custom-gym-agent-loop
+domain: agent
+description: "M1 synthetic terminal environment (design C-SE-1/C-SE-2): bash actions over
+  deterministic replay dynamics with an in-memory virtual FS; three demo tasks cover the
+  win path, step-budget truncation and the dangerous-command policy block."
+modality: text
+licensing: Apache-2.0
+authors:
+- chadwweng
+reward:
+  range:
+  - 0.0
+  - 1.0
+  higher_is_better: true
+determinism: seeded
+resources_server: synth_env
+agent_server: synth_env_agent
+model_server: policy_model
+datasets:
+- name: synth-terminal
+  type: benchmark
+  jsonl_fpath: benchmarks/synth-terminal/data/synth_terminal.jsonl
+  prepare_script: benchmarks/synth-terminal/prepare.py
+  num_repeats: 1
+prompt_source: prepared
+canonical_split: benchmark
+lifecycle: active

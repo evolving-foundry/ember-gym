@@ -1,0 +1,73 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Example experiment profile for the RSI × Gym evaluation service.
+# Spec: docs/RSI_Gym_集成需求规划_v0.1.md §3 (agent-agnostic adapter registration) and §4 (tier
+# presets, budgets). Registering a new Agent = adding one entry under `adapters`; the contract and
+# other adapters are untouched. Adapter `harness_agent` values must match a Gym harness present in
+# responses_api_agents/, and `config_paths` point at that harness's YAML.
+profile_id: rsi-v0-example
+
+adapters:
+  claude_code:
+    harness_agent: claude_code_agent
+    version: "1"
+    config_paths:
+      - responses_api_agents/claude_code_agent/configs/claude_code_agent.yaml
+    description: Claude Code harness (claude -p), ready out of the box in Gym.
+  codex:
+    harness_agent: codex_agent
+    version: "1"
+    config_paths:
+      - responses_api_agents/codex_agent/configs/codex_agent.yaml
+    description: Codex harness, ready out of the box in Gym.
+  hermes:
+    harness_agent: hermes_agent
+    version: "1"
+    config_paths:
+      - responses_api_agents/hermes_agent/configs/hermes_agent.yaml
+    description: Hermes harness (brings its own toolset; consumes verify only).
+  opencode:
+    harness_agent: opencode_agent
+    version: "1"
+    config_paths:
+      - responses_api_agents/opencode_agent/configs/opencode_agent.yaml
+    description: OpenCode harness, modeled on claude_code_agent.
+  dsh:
+    harness_agent: dsh_agent
+    version: "1"
+    config_paths:
+      - responses_api_agents/dsh_agent/configs/dsh_agent.yaml
+    description: >-
+      dsh CLI harness (headless one-shot subprocess, self-held credentials);
+      accepted via real gsm8k rollouts (2026-09-17, 4/4 reward=1.0).
+
+benchmarks:
+  # Replace with a real registered benchmark before running; dataset JSONL must exist locally.
+  example_benchmark:
+    dataset_fpath: data/example_benchmark/train.jsonl
+    # OF-2: holdout is registered here but only reachable via the promotion pipeline.
+    holdout_dataset_fpath: null
+    dataset_version: v2026.09.01
+    config_paths: []
+    probe_split_size: 32
+
+# Tier presets default to probe≈32 rollouts / screen=whole split / full=repeated rollouts (EC-1).
+# Override per tier here if a benchmark needs different presets; the outer loop can never set
+# limit/num-repeats/concurrency per request (EC-3).
+# tiers:
+#   probe: {limit: 32, num_repeats: 1, concurrency: 8, allowed_splits: [train_probe]}
+
+budgets:
+  split_eval_soft_limit: 10
+  lineage_max_evals: 500
+  lineage_max_tokens: 2000000000
+
+# HF-1: model server pin — part of the harness manifest digest.
+model:
+  name: gpt-5-mini
+  temperature: 0.7
+  top_p: 0.95
+  max_output_tokens: 4096
+
+# harness_pin: sha256:...  # optional: pin the manifest explicitly; default = computed from above

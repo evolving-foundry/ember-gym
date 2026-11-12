@@ -1,0 +1,2 @@
+# Keep scoring code on the same audited revision as the materialized task data.
+webarena-verified @ git+https://github.com/ServiceNow/webarena-verified.git@6473f72db5dcefc97b5725b59e734504edc28a21

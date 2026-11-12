@@ -1,0 +1,10 @@
+{
+  "source": "https://three.arcprize.org/api/games",
+  "pinned_at": "2026-10-09",
+  "note": "首期仅官方 preview 游戏(设计决议 #2, 2026-10-09);Kaggle 全列表等 M4 评分口径定稿后再扩。game_id 为稳定 slug,API 返回的完整 id 形如 <slug>-<version>。human_baseline_actions 未公布,置 null 由 agent config 默认预算兜底。",
+  "games": [
+    {"game_id": "ls20", "title": "LS20", "description": "Agent reasoning"},
+    {"game_id": "ft09", "title": "FT09", "description": "Elementary logic"},
+    {"game_id": "vc33", "title": "VC33", "description": "Orchestration"}
+  ]
+}

@@ -1,0 +1,42 @@
+# synth-npu-faultdiag chained to the dsh agent harness (headless profile).
+# Same resources server + dataset as config.yaml; the agent is dsh, which owns
+# its model credentials (volcano gateway, $DSH_HOME/settings.yaml) — no Gym
+# model_server is wired. The harness reads the seed response's `mcp` metadata
+# and writes a dsh --patch overlay mounting @deepseek-ai/dsh-mcp-client with
+# the per-rollout session token, so dsh's tool calls land in the session that
+# /verify scores. The synth_env server's allowed_agents must be widened here:
+# it ships restricted to [synth_env_agent].
+config_paths:
+- resources_servers/synth_env/configs/synth_env.yaml
+
+synth_env:
+  resources_servers:
+    synth_env:
+      allowed_agents: [synth_env_agent, dsh_agent]
+
+synth_npu_faultdiag_dsh_agent:
+  responses_api_agents:
+    dsh_agent:
+      entrypoint: app.py
+      resources_server:
+        type: resources_servers
+        name: synth_env
+      concurrency: 4
+      timeout: 900
+      datasets:
+      - name: synth-npu-faultdiag
+        type: benchmark
+        jsonl_fpath: benchmarks/synth-npu-faultdiag/data/synth-npu-faultdiag.jsonl
+        prompt_config: benchmarks/prompts/synth-npu-faultdiag/agent_dsh.yaml
+        prepare_script: benchmarks/synth-npu-faultdiag/prepare.py
+
+# Explicit legacy_agent relay (recommended by the Gym deprecation notice): with this
+# block the agent is always reached through an environment server, which keeps
+# `gym eval run --no-serve` (eval_service path) routing identical to serve mode.
+synth_npu_faultdiag_environment_server:
+  environment_servers:
+    legacy_agent:
+      entrypoint: app.py
+      agent_server:
+        type: responses_api_agents
+        name: synth_npu_faultdiag_dsh_agent

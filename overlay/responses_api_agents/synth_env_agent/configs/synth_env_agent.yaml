@@ -1,0 +1,26 @@
+synth_env_agent:
+  responses_api_agents:
+    synth_env_agent:
+      entrypoint: app.py
+      domain: agent
+      description: Policy agent loop over the synth_env host (C-SE-1 seed/step/verify, v3 pattern).
+      value: "Validate synthetic environments end-to-end: the agent holds the loop while the environment enforces budgets, replay determinism and failure classification."
+      # 模型可切换(决议 3/4):切模型只改 model_server 引用,agent 代码零改动。
+      model_server:
+        type: responses_api_models
+        name: policy_model
+      resources_server:
+        type: resources_servers
+        name: synth_env
+      concurrency: 2            # M1 零 LLM 环境侧成本,但每步一次策略模型调用,保守起步(设计 §4)
+      request_timeout_s: 120
+      history_window: 6
+      temperature: 0.0
+      # 每步一次 chat 调用的输出预算:thinking 模型(volcano glm)思考链可能失控
+      # 吃满预算产出空响应(usage=0),8192 保证失控后仍有余量输出正文/工具调用。
+      max_output_tokens: 8192
+      use_tool_call: true
+      # 真机 E2E 实测:远端网关偶发返回空响应(usage=0),0 次重试时一次即判
+      # malformed 终局;malformed 动作从未执行,重试不污染 replay 状态。
+      malformed_action_max_retries: 2
+      default_max_steps: 40

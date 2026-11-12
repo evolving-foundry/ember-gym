@@ -1,0 +1,40 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Purpose-built E2E profile: external dsh(TS) RSI outer loop → eval_service → real gym rollouts.
+# The `dsh` adapter deliberately points at the benchmark-coupled config (config_dsh.yaml chains
+# openai_model stub + math_with_judge[should_use_judge:false] + dsh_agent) because EvalService
+# passes only adapter.config_paths to `gym eval run`. No `model:` pin — dsh brings its own
+# credentials, so the runner emits no model flags. Dataset is gitignored but prepared locally
+# (see benchmarks/gsm8k/prepare.py).
+profile_id: rsi-v0-gsm8k-e2e
+
+adapters:
+  dsh:
+    # harness_agent is the composition key the running config registers the agent under
+    # (top-level `gsm8k_dsh_agent` in config_dsh.yaml), not the instance name `dsh_agent` —
+    # nemo_gym.rollout_collection._validate_agent_names resolves --agent against top-level keys.
+    harness_agent: gsm8k_dsh_agent
+    version: "1"
+    config_paths:
+      - benchmarks/gsm8k/config_dsh.yaml
+    description: >-
+      dsh CLI harness (headless one-shot subprocess, self-held credentials) wired to the gsm8k
+      server stack; accepted via real gsm8k rollouts (2026-09-17, 4/4 reward=1.0).
+
+benchmarks:
+  gsm8k:
+    # Materialized TaskData rows (nemo_gym.prompt.materialize_prompts, prompt_config
+    # benchmarks/prompts/generic/math.yaml) — `gym eval run --no-serve --input` requires
+    # rows that already carry responses_create_params.
+    dataset_fpath: benchmarks/gsm8k/data/gsm8k_benchmark_materialized.jsonl
+    # OF-2: no holdout registered for E2E — the promotion pipeline is out of scope here.
+    holdout_dataset_fpath: null
+    dataset_version: v2026.09.17
+    config_paths: []
+    probe_split_size: 4
+
+budgets:
+  split_eval_soft_limit: 10
+  lineage_max_evals: 500
+  lineage_max_tokens: 2000000000

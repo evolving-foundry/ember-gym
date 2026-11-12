@@ -1,0 +1,21 @@
+# Chain to the synth_env resources server + synth_env_agent + policy model config.
+# Same server instance as synth-terminal (one host serves office and terminal
+# packages side by side; sessions bind to their package version at seed time).
+config_paths:
+  - resources_servers/synth_env/configs/synth_env.yaml
+  - responses_api_agents/synth_env_agent/configs/synth_env_agent.yaml
+  - responses_api_models/openai_model/configs/openai_model.yaml
+
+# Benchmark-specific agent instance: inherits the agent config and attaches the
+# dataset. The agent mirrors whatever action set the office package declares
+# (seed response action_schemas); no scenario semantics live here.
+synth_office_agent:
+  _inherit_from: synth_env_agent
+  responses_api_agents:
+    synth_env_agent:
+      datasets:
+      - name: synth-office
+        type: benchmark
+        jsonl_fpath: benchmarks/synth-office/data/synth_office.jsonl
+        prompt_config: benchmarks/prompts/synth_office/agent.yaml
+        prepare_script: benchmarks/synth-office/prepare.py

@@ -1,0 +1,20 @@
+# Chain to existing resource server + agent config
+config_paths:
+  - resources_servers/arc_agi/configs/arc_agi.yaml
+
+# Isolated benchmark-specific inheritance.
+arc_agi_resources_server:
+  _inherit_from: arc_agi
+
+arc_agi_simple_agent:
+  _inherit_from: arc_agi_simple_agent
+  responses_api_agents:
+    simple_agent:
+      resources_server:
+        name: arc_agi_resources_server
+      datasets:
+      - name: arc-agi
+        type: benchmark
+        jsonl_fpath: benchmarks/arc-agi/data/arc_agi_benchmark.jsonl
+        prompt_config: benchmarks/prompts/generic/arc.yaml
+        prepare_script: benchmarks/arc-agi/prepare.py

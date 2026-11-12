@@ -1,0 +1,19 @@
+# Run a materialized RSI DSH candidate directly for each BrowserGym action.
+# Paths to the local launcher and workspace are supplied by the operator.
+browsergym_agent:
+  responses_api_agents:
+    browsergym_agent:
+      entrypoint: app.py
+      domain: agent
+      description: BrowserGym agent using a materialized RSI DSH candidate.
+      value: Improve multi-step browser interaction and task completion.
+      dsh_command: ${oc.env:RSI_DSH_COMMAND}
+      dsh_home: ${oc.env:RSI_DSH_HOME}
+      dsh_workspace_root: ${oc.env:RSI_DSH_WORKSPACE_ROOT}
+      dsh_profile: headless
+      concurrency: 1
+      max_steps: ${oc.env:RSI_BROWSERGYM_MAX_STEPS,50}
+      request_timeout_s: 180
+      action_max_chars: 12000
+      observation_max_chars: 50000
+      har_dir: ${oc.env:BROWSERGYM_HAR_DIR,results/browsergym_har}

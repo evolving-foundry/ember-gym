@@ -1,0 +1,2 @@
+-e agent-gym[dev] @ ../../
+zstandard>=0.22

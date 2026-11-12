@@ -1,0 +1,37 @@
+# gsm8k benchmark chained to the dsh agent harness (headless profile).
+# Same resources server + dataset as benchmarks/gsm8k/config.yaml; the agent is
+# dsh, which owns its model credentials — policy_model is only present because
+# math_with_judge's judge_model_server reference must resolve (the judge is
+# disabled, so no model calls are ever made through Gym).
+config_paths:
+  - responses_api_models/openai_model/configs/openai_model.yaml
+
+math_with_judge:
+  resources_servers:
+    math_with_judge:
+      entrypoint: app.py
+      judge_model_server:
+        type: responses_api_models
+        name: policy_model
+      judge_responses_create_params: {input: []}
+      should_use_judge: false
+      domain: math
+      verified: false
+      description: dsh agent harness on gsm8k with math-verify
+      value: Evaluate math reasoning with the dsh agent harness
+
+gsm8k_dsh_agent:
+  responses_api_agents:
+    dsh_agent:
+      entrypoint: app.py
+      resources_server:
+        type: resources_servers
+        name: math_with_judge
+      concurrency: 4
+      timeout: 600
+      datasets:
+      - name: gsm8k
+        type: benchmark
+        jsonl_fpath: benchmarks/gsm8k/data/gsm8k_benchmark.jsonl
+        prompt_config: benchmarks/prompts/generic/math.yaml
+        prepare_script: benchmarks/gsm8k/prepare.py

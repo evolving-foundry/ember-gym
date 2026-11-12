@@ -1,0 +1,2 @@
+-e agent-gym[dev] @ ../../
+pillow>=11.2.1

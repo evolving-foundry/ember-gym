@@ -1,0 +1,12 @@
+# Transport for an activated RSI candidate used by Gym-native agent loops.
+# The candidate service must implement the API required by the selected
+# environment (Chat Completions for BrowserGym; Responses for Terminus,
+# OpenCode and some OSWorld runners). Replace this trusted adapter config
+# when the candidate uses a different protocol or model-server implementation.
+policy_model:
+  responses_api_models:
+    openai_model:
+      entrypoint: app.py
+      openai_base_url: ${oc.env:RSI_AGENT_BASE_URL}
+      openai_api_key: ${oc.env:RSI_AGENT_API_KEY}
+      openai_model: ${oc.env:RSI_AGENT_MODEL}

@@ -1,0 +1,9 @@
+# Online BrowserGym composition. ServiceNow instance URLs and credentials are supplied by env.
+browsergym_agent:
+  responses_api_agents:
+    browsergym_agent:
+      datasets:
+        - name: workarena_l1
+          type: benchmark
+          jsonl_fpath: benchmarks/workarena/data/rsi/workarena_l1_train.jsonl
+          prepare_script: benchmarks/workarena/prepare.py

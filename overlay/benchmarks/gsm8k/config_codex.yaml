@@ -1,0 +1,41 @@
+# gsm8k benchmark chained to the codex agent harness.
+# Codex CLI gets a fresh CODEX_HOME per rollout with a Gym-owned provider; credentials come
+# from the config (no codex login). Codex 0.144.4 speaks only the Responses API — the upstream
+# must expose /v1/responses (MiniMax does; wire_api stays at its default "responses").
+config_paths:
+  - responses_api_models/openai_model/configs/openai_model.yaml
+
+math_with_judge:
+  resources_servers:
+    math_with_judge:
+      entrypoint: app.py
+      judge_model_server:
+        type: responses_api_models
+        name: policy_model
+      judge_responses_create_params: {input: []}
+      should_use_judge: false
+      domain: math
+      verified: false
+      description: codex agent harness on gsm8k with math-verify
+      value: Evaluate math reasoning with the codex agent harness
+
+gsm8k_codex_agent:
+  responses_api_agents:
+    codex_agent:
+      entrypoint: app.py
+      resources_server:
+        type: resources_servers
+        name: math_with_judge
+      concurrency: 2
+      model: MiniMax-M3
+      openai_api_key: ${oc.env:MINIMAX_KEY}
+      openai_base_url: ${oc.env:MINIMAX_BASE_URL}
+      sandbox_mode: danger-full-access
+      timeout: 600
+      codex_version: 0.144.4
+      datasets:
+      - name: gsm8k
+        type: benchmark
+        jsonl_fpath: benchmarks/gsm8k/data/gsm8k_benchmark.jsonl
+        prompt_config: benchmarks/prompts/generic/math.yaml
+        prepare_script: benchmarks/gsm8k/prepare.py

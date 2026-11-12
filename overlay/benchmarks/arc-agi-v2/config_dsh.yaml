@@ -1,0 +1,49 @@
+# arc-agi-v2 benchmark chained to the dsh agent harness (headless profile).
+# Same resources server + dataset as benchmarks/arc-agi-v2/config.yaml; the agent is
+# dsh, which owns its model credentials — no Gym model server is wired (the
+# arc_agi verifier is deterministic grid exact-match and needs no judge model).
+# eval_service passes only adapter.config_paths to `gym eval run`, and resolves
+# --agent against top-level keys (nemo_gym.rollout_collection._validate_agent_names),
+# so the agent registers under the top-level name `arc_agi_v2_dsh_agent`.
+config_paths:
+  - resources_servers/arc_agi/configs/arc_agi.yaml
+
+arc_agi_resources_server:
+  _inherit_from: arc_agi
+
+# 链式 configs/arc_agi.yaml 带进来的 arc_agi_simple_agent 引用 model_server/'policy_model',
+# 但 DSH 路径不接 Gym model server(dsh 自带凭据),合并后 responses_api_models 为空,
+# 校验对每个实例的 server ref 都要可解析,故注册框架惯用的 dummy model(NO_MODEL_GLOBAL_CONFIG_DICT
+# 同款形状)让引用可解析;该实例不被 --agent 选中,运行期不会拉起。
+policy_model:
+  responses_api_models:
+    dummy_model:
+      entrypoint: app.py
+
+# 与 config.yaml 同款覆写:链式 configs/arc_agi.yaml 里的 arc_agi_simple_agent
+# 仍按旧名引用 resources_server/'arc_agi',合并后的可用名只有 arc_agi_resources_server,
+# 不覆写会在合并校验时报 "references resources_servers/'arc_agi', which is not defined"。
+arc_agi_simple_agent:
+  _inherit_from: arc_agi_simple_agent
+  responses_api_agents:
+    simple_agent:
+      resources_server:
+        name: arc_agi_resources_server
+
+arc_agi_v2_dsh_agent:
+  responses_api_agents:
+    dsh_agent:
+      entrypoint: app.py
+      resources_server:
+        type: resources_servers
+        name: arc_agi_resources_server
+      concurrency: 4
+      # 1800s 起步:v1 真机实测定的 1800s(v1 单路 242-701s);v2 任务难度更高、
+      # 慢尾可能更长,首跑后观察 dsh turn reason=max-tokens 类失败再重标。
+      timeout: 1800
+      datasets:
+      - name: arc-agi-v2
+        type: benchmark
+        jsonl_fpath: benchmarks/arc-agi-v2/data/arc_agi_v2_benchmark.jsonl
+        prompt_config: benchmarks/prompts/generic/arc.yaml
+        prepare_script: benchmarks/arc-agi-v2/prepare.py

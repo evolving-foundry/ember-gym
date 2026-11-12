@@ -1,0 +1,14 @@
+config_paths:
+- resources_servers/synth_env/configs/synth_env.yaml
+- responses_api_agents/synth_env_agent/configs/synth_env_agent.yaml
+- responses_api_models/openai_model/configs/openai_model.yaml
+synth_curator_docx_pdf_ocr_e2e_agent:
+  _inherit_from: synth_env_agent
+  responses_api_agents:
+    synth_env_agent:
+      datasets:
+      - name: synth-curator-docx-pdf-ocr-e2e
+        type: benchmark
+        jsonl_fpath: benchmarks/synth-curator-docx-pdf-ocr-e2e/data/synth-curator-docx-pdf-ocr-e2e.jsonl
+        prompt_config: benchmarks/prompts/synth-curator-docx-pdf-ocr-e2e/agent.yaml
+        prepare_script: benchmarks/synth-curator-docx-pdf-ocr-e2e/prepare.py

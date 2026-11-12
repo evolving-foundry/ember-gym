@@ -1,0 +1,10 @@
+# The RSI candidate endpoint speaks OpenAI-compatible Chat Completions. This
+# transport is replaceable by another Gym model-server config under the same
+# instance name; the benchmark never chooses the candidate's provider.
+rsi_agent_endpoint:
+  responses_api_models:
+    openai_model:
+      entrypoint: app.py
+      openai_base_url: ${oc.env:RSI_AGENT_CHAT_BASE_URL}
+      openai_api_key: ${oc.env:RSI_AGENT_CHAT_API_KEY}
+      openai_model: ${oc.env:RSI_AGENT_CHAT_MODEL}

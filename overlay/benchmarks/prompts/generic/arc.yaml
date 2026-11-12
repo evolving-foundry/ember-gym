@@ -1,0 +1,17 @@
+# Prompt for ARC-AGI (Abstraction and Reasoning Corpus) tasks.
+# The {question} placeholder carries the example input/output pairs and the
+# test input, pre-rendered by benchmarks/arc-agi/prepare.py as compact JSON
+# grids; the response format below mirrors what the arc_agi verifier parses.
+user: |-
+  You are solving an ARC (Abstraction and Reasoning Corpus) task. Each task
+  shows several example input/output grid pairs. Work out the transformation
+  rule from the examples, then apply it to the test input.
+
+  Rules:
+  - Grids are rectangular arrays of integers (0-9).
+  - The output grid may have different dimensions than the input grid.
+
+  Respond with ONLY the output grid as a JSON array of arrays of integers,
+  e.g. [[1, 2], [3, 4]].
+
+  {question}

@@ -1,0 +1,35 @@
+# RSI profile for OSWorld-Verified 1.x through its pinned public task definitions.
+profile_id: rsi-v1-osworld
+
+adapters:
+  remote:
+    harness_agent: osworld_simple_agent
+    version: "osworld-gym-v1"
+    config_paths:
+      - responses_api_models/openai_model/configs/rsi_policy_endpoint.yaml
+    manifest_env: [RSI_AGENT_BASE_URL, RSI_AGENT_MODEL]
+    description: OSWorld action loop using the activated RSI candidate policy endpoint.
+
+benchmarks:
+  osworld:
+    dataset_fpath: benchmarks/osworld/data/rsi/osworld_train.jsonl
+    holdout_dataset_fpath: benchmarks/osworld/data/rsi/osworld_holdout.jsonl
+    dataset_version: osworld-verified-1x-rsi-split-1
+    config_paths:
+      - benchmarks/osworld/config.yaml
+      - benchmarks/osworld/configs/osworld_docker_pinned.yaml
+    source_paths:
+      - benchmarks/osworld
+      - responses_api_agents/osworld_agent
+    task_id_field: task_id
+    probe_split_size: 8
+
+tiers:
+  probe: {limit: 4, num_repeats: 1, concurrency: 1, allowed_splits: [train_probe]}
+  screen: {limit: 16, num_repeats: 1, concurrency: 1, allowed_splits: [train_probe, train_full]}
+  full: {limit: 32, num_repeats: 2, concurrency: 1, allowed_splits: [train_full]}
+
+budgets:
+  split_eval_soft_limit: 10
+  lineage_max_evals: 200
+  lineage_max_tokens: 2000000000

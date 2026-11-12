@@ -1,0 +1,7 @@
+# Execute the materialized RSI candidate directly for GAIA rollouts.
+gaia_dsh_agent:
+  responses_api_agents:
+    dsh_agent:
+      dsh_command: ${oc.env:RSI_DSH_COMMAND}
+      workspace_root: ${oc.env:RSI_DSH_WORKSPACE_ROOT}
+      timeout: ${oc.env:RSI_DSH_TIMEOUT_S,300}

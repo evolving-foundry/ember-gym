@@ -1,0 +1,32 @@
+name: synth-npu-faultdiag-v2
+version: 0.2.0
+experimental: true
+kind: benchmark
+integration_profile: custom-gym-agent-loop
+domain: agent
+description: Information-rich NPU fault-diagnosis environment (npu-faultdiag@v2, hand-authored
+  package): symptom-driven two-hop retrieval (tickets x knowledge base), diagnosis recording
+  via record_diagnosis, and approval-flow completion. Replaces the v1 template tasks whose
+  verifiers were pre-satisfied by the shared seed state.
+modality: text
+licensing: Apache-2.0
+authors:
+- AgentGym
+reward:
+  range:
+  - 0.0
+  - 1.0
+  higher_is_better: true
+determinism: seeded
+resources_server: synth_env
+agent_server: synth_env_agent
+model_server: policy_model
+datasets:
+- name: synth-npu-faultdiag-v2
+  type: benchmark
+  jsonl_fpath: benchmarks/synth-npu-faultdiag-v2/data/synth-npu-faultdiag-v2.jsonl
+  prepare_script: benchmarks/synth-npu-faultdiag-v2/prepare.py
+  num_repeats: 1
+prompt_source: prepared
+canonical_split: benchmark
+lifecycle: active

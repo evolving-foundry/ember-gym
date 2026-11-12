@@ -1,0 +1,48 @@
+{
+  "assets": {
+    "config": "benchmarks/synth-npu-faultdiag/config.yaml",
+    "generatedData": "benchmarks/synth-npu-faultdiag/data/synth-npu-faultdiag.jsonl",
+    "manifest": "benchmarks/synth-npu-faultdiag/manifest.yaml",
+    "packageZip": "benchmarks/synth-npu-faultdiag/assets/gym-env-package-v1-f6043dba6c0bd73e.zip",
+    "prepareScript": "benchmarks/synth-npu-faultdiag/prepare.py",
+    "prompt": "benchmarks/prompts/synth-npu-faultdiag/agent.yaml"
+  },
+  "benchmark": "synth-npu-faultdiag",
+  "gymContract": {
+    "design": "AgentGym:合成环境接入设计_v0.2.md",
+    "sections": [
+      "3.5",
+      "3.6"
+    ],
+    "taskFields": [
+      "task_id",
+      "env_release",
+      "goal",
+      "success_check",
+      "max_steps",
+      "seed"
+    ],
+    "taskSchema": "synth-env-task-v1"
+  },
+  "registration": {
+    "component": "benchmarks/synth-npu-faultdiag",
+    "packagePath": "benchmarks/synth-npu-faultdiag/assets/gym-env-package-v1-f6043dba6c0bd73e.zip",
+    "status": "registered"
+  },
+  "release": {
+    "assetSha256": "5578223ea63fb9152595f7b5f6f8f69702f3d9bd079f0bb851ab266c40e94c37",
+    "buildFingerprint": "21395159117a1a6c",
+    "fingerprint": "f6043dba6c0bd73e",
+    "refId": "npu-faultdiag",
+    "version": 1
+  },
+  "runnable": true,
+  "schemaVersion": "env-gym-publish-v1",
+  "status": "published",
+  "taskset": {
+    "fingerprint": "02405e42d37e28cb",
+    "itemCount": 15,
+    "refId": "npu-faultdiag-env",
+    "version": 1
+  }
+}

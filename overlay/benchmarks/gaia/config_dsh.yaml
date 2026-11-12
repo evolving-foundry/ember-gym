@@ -1,0 +1,36 @@
+# DSH owns the candidate model credentials; GAIA answer grading is local and deterministic.
+config_paths:
+  - resources_servers/gaia/configs/gaia.yaml
+
+# A failed agent /run (for example a DSH timeout) is data for the evaluation,
+# not a reason to abort the whole run. Keep the failed rollout in a sidecar and
+# count it as zero so the score's denominator still includes every task.
+route_failures_to_sidecar: true
+count_failure_classes_as_zero:
+  - agent_run_error
+count_missing_rollouts_as_zero: true
+
+# F-10 rationale: timeout 300 / concurrency 12 are a latency/cost tradeoff, not a claim that
+# failures are free. eval_service counts agent_run_error rollouts as zero in reward_mean and
+# pass_rate (F-03), so a timeout shows up as a lower score instead of vanishing from the
+# denominator. The PR description must attach the measured runtime and failure-rate data
+# that justifies these numbers for the target host.
+
+gaia_resources_server:
+  _inherit_from: gaia
+
+gaia_dsh_agent:
+  responses_api_agents:
+    dsh_agent:
+      entrypoint: app.py
+      resources_server:
+        type: resources_servers
+        name: gaia_resources_server
+      concurrency: 12
+      timeout: 300
+      datasets:
+        - name: gaia_text_validation
+          type: benchmark
+          jsonl_fpath: benchmarks/gaia/data/gaia_text_validation.jsonl
+          prompt_config: benchmarks/gaia/prompts/default.yaml
+          prepare_script: benchmarks/gaia/prepare.py

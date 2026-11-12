@@ -1,0 +1,22 @@
+config_paths:
+  - resources_servers/gaia/configs/gaia.yaml
+
+gaia_resources_server:
+  _inherit_from: gaia
+
+gaia_simple_agent:
+  responses_api_agents:
+    simple_agent:
+      entrypoint: app.py
+      resources_server:
+        type: resources_servers
+        name: gaia_resources_server
+      model_server:
+        type: responses_api_models
+        name: policy_model
+      datasets:
+        - name: gaia_text_validation
+          type: benchmark
+          jsonl_fpath: benchmarks/gaia/data/gaia_text_validation.jsonl
+          prompt_config: benchmarks/gaia/prompts/default.yaml
+          prepare_script: benchmarks/gaia/prepare.py

@@ -1,0 +1,52 @@
+# RSI profile for GAIA public, text-only validation tasks.
+profile_id: rsi-v1-gaia
+
+# P1 trust anchor: the RSI activation adapter writes this sidecar next to the active
+# DSH user layer. Holdout requests are rejected unless it matches candidate_id/digest.
+activation_manifest_fpath: ${DSH_HOME}/profiles/headless/.rsi-gym-activation.json
+
+adapters:
+  dsh:
+    harness_agent: gaia_dsh_agent
+    version: "gaia-text-gym-v1"
+    description: DSH tool-using assistant with local GAIA quasi-exact answer grading.
+  dsh_candidate:
+    harness_agent: gaia_dsh_agent
+    version: "gaia-text-rsi-dsh-candidate-v1"
+    config_paths:
+      - responses_api_agents/dsh_agent/configs/rsi_dsh_candidate.yaml
+    source_paths:
+      - responses_api_agents/dsh_agent
+    manifest_env: [RSI_CANDIDATE_ID, RSI_DSH_COMMAND, RSI_DSH_HOME, RSI_DSH_WORKSPACE_ROOT, RSI_DSH_TIMEOUT_S]
+    description: GAIA rollout executed by the materialized RSI DSH candidate.
+
+benchmarks:
+  gaia_text_validation:
+    dataset_fpath: benchmarks/gaia/data/rsi/gaia_train.jsonl
+    holdout_dataset_fpath: benchmarks/gaia/data/rsi/gaia_holdout.jsonl
+    dataset_version: gaia-validation-text-rsi-split-1
+    config_paths:
+      - benchmarks/gaia/config_dsh.yaml
+    source_paths:
+      - benchmarks/gaia
+      - resources_servers/gaia
+      - responses_api_agents/dsh_agent
+    task_id_field: task_id
+    probe_split_size: 8
+
+# F-10 rationale (the PR description must attach the measured runtime/failure-rate data):
+# - concurrency 12 matches the GAIA/DSH host's observed parallelism; probe stays at 2 so a
+#   cheap screen does not fan out across the whole machine.
+# - full.num_repeats 1: train_full already spans the split and repeats multiply real rollout
+#   cost; failure variance is observable through rollouts_failed instead of being averaged away.
+# - full.limit 64 applies to train_full only. Holdout is pinned to the full tier but the
+#   execution path ignores tier.limit (F-01), so promotion always evaluates the complete split.
+tiers:
+  probe: {limit: 4, num_repeats: 1, concurrency: 2, allowed_splits: [train_probe]}
+  screen: {limit: 16, num_repeats: 1, concurrency: 12, allowed_splits: [train_probe, train_full]}
+  full: {limit: 64, num_repeats: 1, concurrency: 12, allowed_splits: [train_full]}
+
+budgets:
+  split_eval_soft_limit: 10
+  lineage_max_evals: 200
+  lineage_max_tokens: 2000000000

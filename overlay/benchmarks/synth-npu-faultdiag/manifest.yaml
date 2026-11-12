@@ -1,0 +1,29 @@
+name: synth-npu-faultdiag
+version: 0.1.0
+experimental: true
+kind: benchmark
+integration_profile: custom-gym-agent-loop
+domain: agent
+description: DataDesigner Gym-native environment package npu-faultdiag
+modality: text
+licensing: Apache-2.0
+authors:
+- AgentGym-DataDesigner
+reward:
+  range:
+  - 0.0
+  - 1.0
+  higher_is_better: true
+determinism: seeded
+resources_server: synth_env
+agent_server: synth_env_agent
+model_server: policy_model
+datasets:
+- name: synth-npu-faultdiag
+  type: benchmark
+  jsonl_fpath: benchmarks/synth-npu-faultdiag/data/synth-npu-faultdiag.jsonl
+  prepare_script: benchmarks/synth-npu-faultdiag/prepare.py
+  num_repeats: 1
+prompt_source: prepared
+canonical_split: benchmark
+lifecycle: active

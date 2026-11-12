@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "inspected_at": "2026-10-05",
+  "sources": {
+    "EvoAgentBench": {
+      "url": "https://github.com/EverMind-AI/EvoAgentBench.git",
+      "ref": "948a17288782d5120778da16b4cf1cad9305d8b4",
+      "protocol": "official 528/267 task-ID split and four-domain runner"
+    },
+    "PAST-Bench": {
+      "url": "https://github.com/Gen-Verse/PAST-Bench.git",
+      "ref": "f8223517ae7491e776b69793d9f11e9d074ab42e",
+      "protocol": "26-family, 204-episode sequences with matched persistence control"
+    },
+    "RSI-Exam": {
+      "url": "https://github.com/aiming-lab/RSI-Exam.git",
+      "ref": "1e91cbfa6458aa261d865bdb28fca7b68752a08d",
+      "protocol": "Harbor sealed replay; public 35 tasks, full 88-task suite gated"
+    },
+    "AI4AI-Bench": {
+      "url": "https://github.com/Einsia/AI4AI-Bench.git",
+      "ref": "5ced1e2eb1882baf52e6d928f9257006aa71968c",
+      "protocol": "10 algorithmic-design tasks; exploration then isolated formal training"
+    },
+    "AgentBench": {
+      "url": "https://github.com/THUDM/AgentBench.git",
+      "ref": "d1e4a10db08c87075c78972e48ecc182be03e2d5",
+      "protocol": "FC release is distinct from original v0.1/v0.2 suite"
+    },
+    "OSWorld-Science": {
+      "url": "https://huggingface.co/datasets/SciAILab/osworld-science",
+      "ref": "gated-access; review conditions and data card before accepting",
+      "protocol": "machine-checkable deliverables; public answer keys mean not blind evaluation"
+    },
+    "BFCL": {
+      "url": "https://github.com/ShishirPatil/gorilla.git",
+      "ref": "f7cf735",
+      "repository_head_at_inspection": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+      "protocol": "V4 leaderboard reproduction pin; package bfcl-eval==2025.12.17"
+    }
+  }
+}

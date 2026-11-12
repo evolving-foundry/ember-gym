@@ -1,0 +1,17 @@
+# Chain to the synth_env resources server + synth_env_agent + policy model config.
+config_paths:
+  - resources_servers/synth_env/configs/synth_env.yaml
+  - responses_api_agents/synth_env_agent/configs/synth_env_agent.yaml
+  - responses_api_models/openai_model/configs/openai_model.yaml
+
+# Benchmark-specific agent instance: inherits the agent config and attaches the dataset.
+synth_terminal_agent:
+  _inherit_from: synth_env_agent
+  responses_api_agents:
+    synth_env_agent:
+      datasets:
+      - name: synth-terminal
+        type: benchmark
+        jsonl_fpath: benchmarks/synth-terminal/data/synth_terminal.jsonl
+        prompt_config: benchmarks/prompts/synth_terminal/agent.yaml
+        prepare_script: benchmarks/synth-terminal/prepare.py

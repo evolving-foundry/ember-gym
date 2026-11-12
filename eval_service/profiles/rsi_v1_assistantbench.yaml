@@ -1,0 +1,45 @@
+# Public AssistantBench validation tasks, run through the pinned BrowserGym task implementation.
+profile_id: rsi-v1-assistantbench
+
+adapters:
+  browsergym:
+    harness_agent: browsergym_agent
+    version: "browsergym-0.14.4-assistantbench"
+    config_paths:
+      - responses_api_agents/browsergym_agent/configs/browsergym_agent.yaml
+      - responses_api_models/openai_model/configs/rsi_policy_endpoint.yaml
+    manifest_env: [RSI_AGENT_BASE_URL, RSI_AGENT_MODEL]
+    description: BrowserGym action loop using the activated RSI candidate policy endpoint.
+  browsergym_dsh:
+    harness_agent: browsergym_agent
+    version: "browsergym-0.14.4-assistantbench-dsh-v1"
+    config_paths:
+      - responses_api_agents/browsergym_agent/configs/browsergym_dsh_agent.yaml
+    source_paths:
+      - responses_api_agents/dsh_agent/session_usage.py
+    manifest_env: [RSI_DSH_COMMAND, RSI_DSH_HOME, RSI_DSH_WORKSPACE_ROOT, RSI_BROWSERGYM_MAX_STEPS]
+    description: BrowserGym action loop calling the materialized RSI DSH candidate.
+
+benchmarks:
+  assistantbench_validation:
+    dataset_fpath: benchmarks/assistantbench/data/rsi/assistantbench_validation_train.jsonl
+    holdout_dataset_fpath: benchmarks/assistantbench/data/rsi/assistantbench_validation_holdout.jsonl
+    dataset_version: assistantbench-v1.0-browsergym-rsi-split-1
+    config_paths:
+      - benchmarks/assistantbench/config.yaml
+    source_paths:
+      - benchmarks/assistantbench
+      - responses_api_agents/browsergym_agent
+      - responses_api_models/openai_model
+    task_id_field: task_id
+    probe_split_size: 4
+
+tiers:
+  probe: {limit: 4, num_repeats: 1, concurrency: 1, allowed_splits: [train_probe]}
+  screen: {limit: 12, num_repeats: 1, concurrency: 1, allowed_splits: [train_probe, train_full]}
+  full: {limit: 24, num_repeats: 2, concurrency: 1, allowed_splits: [train_full]}
+
+budgets:
+  split_eval_soft_limit: 10
+  lineage_max_evals: 200
+  lineage_max_tokens: 2000000000

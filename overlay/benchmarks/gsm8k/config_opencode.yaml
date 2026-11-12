@@ -1,0 +1,54 @@
+# gsm8k benchmark chained to the opencode agent harness.
+# opencode CLI gets a per-run project dir with a generated opencode.json pinning a Gym-owned
+# provider (no opencode login); here that provider is MiniMax's OpenAI-compatible endpoint.
+config_paths:
+  - responses_api_models/openai_model/configs/openai_model.yaml
+
+math_with_judge:
+  resources_servers:
+    math_with_judge:
+      entrypoint: app.py
+      judge_model_server:
+        type: responses_api_models
+        name: policy_model
+      judge_responses_create_params: {input: []}
+      should_use_judge: false
+      domain: math
+      verified: false
+      description: opencode agent harness on gsm8k with math-verify
+      value: Evaluate math reasoning with the opencode agent harness
+
+gsm8k_opencode_agent:
+  responses_api_agents:
+    opencode_agent:
+      entrypoint: app.py
+      resources_server:
+        type: resources_servers
+        name: math_with_judge
+      concurrency: 2
+      command: opencode
+      model: minimax/MiniMax-M3
+      openai_api_key: ${oc.env:MINIMAX_KEY}
+      openai_base_url: ${oc.env:MINIMAX_BASE_URL}
+      workspace_root: outputs/opencode_agent/workspaces
+      thinking: false
+      timeout: 600
+      datasets:
+      - name: gsm8k
+        type: benchmark
+        jsonl_fpath: benchmarks/gsm8k/data/gsm8k_benchmark.jsonl
+        prompt_config: benchmarks/prompts/generic/math.yaml
+        prepare_script: benchmarks/gsm8k/prepare.py
+      opencode_config:
+        permission:
+          bash: allow
+          edit: allow
+          webfetch: allow
+        provider:
+          minimax:
+            npm: "@ai-sdk/openai-compatible"
+            options:
+              baseURL: ${oc.env:MINIMAX_BASE_URL}
+              apiKey: ${oc.env:MINIMAX_KEY}
+            models:
+              MiniMax-M3: {}

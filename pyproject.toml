@@ -1,0 +1,561 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+################################################
+# Project
+################################################
+
+[project]
+name = "agent-gym"
+version = "0.1.0"
+readme = "README.md"
+description = "AgentGym: RSI (recursive self-improvement) evaluation overlay on NeMo Gym"
+license = {file = "LICENSE"}
+requires-python = ">=3.13.14"
+authors = [{ name = "AgentGym maintainers" }]
+maintainers = [{ name = "AgentGym maintainers" }]
+
+keywords = [
+    "reinforcement-learning",
+    "RL",
+    "agent",
+    "agentic",
+    "LLM",
+    "large-language-models",
+    "training-data",
+    "rollout",
+    "trajectory",
+    "verification",
+    "verifier",
+    "reward",
+    "tool-calling",
+    "function-calling",
+    "data-collection",
+    "NeMo",
+    "NVIDIA",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    # Keep exactly one framework pin. Components are delivered by overlay/, and direct runtime
+    # dependencies below are limited to modules imported by agent_gym/eval_service themselves.
+    "nemo-gym==0.7.0",
+    "PyYAML",
+    "fastapi",
+    "mcp",
+    "pydantic",
+    "starlette",
+    "uvicorn",
+]
+
+[project.optional-dependencies]
+all = [
+    "nemo-gym[dev,sandbox]==0.7.0",
+]
+
+vllm = [
+    # Pin to the same version used by local_vllm_model / genrm_model server venvs.
+    # Updated: Mon Aug 24, 2026 with vllm==0.25.1
+    # vLLM and its CUDA/cutlass stack do not publish Windows wheels.
+    "vllm==0.25.1; sys_platform == 'linux'",
+    # Pin flashinfer to the exact version vllm 0.25.1 specifies, ensuring pre-compiled
+    # CUDA kernels are used (avoids JIT compilation on first generation == slow step time).
+    # flashinfer>=0.2 bundles compiled kernels in the python package directly.
+    "flashinfer-python==0.6.13; sys_platform == 'linux'",
+]
+
+sandbox = [
+    # Tenacity: Retry helpers used by sandbox providers.
+    # Updated: Sat May 09, 2026 with tenacity==9.1.4
+    # License: Apache 2.0 https://github.com/jd/tenacity/blob/master/LICENSE
+    "tenacity>=9.1.4",
+
+    # OpenSandbox SDK: used by the OpenSandbox sandbox provider for create/exec/delete and SDK pool creation.
+    # Lower bound 0.1.15: first version exposing separate `resource_requests` on Sandbox.create.
+    # Updated: Thu Jul 30, 2026 with opensandbox>=0.1.15
+    # License: Apache 2.0
+    "opensandbox>=0.1.15",
+
+    # httpx-aiohttp: aiohttp-backed httpx transport used by the OpenSandbox
+    # provider's `connection.transport_backend: aiohttp`; without it the
+    # provider silently falls back to the httpx transport with only a warning.
+    # Pulls in aiohttp (aiohttp<4,>=3.10).
+    # Updated: Tue Aug 11, 2026 with httpx-aiohttp>=0.2.0
+    # License: BSD 3-Clause https://github.com/karpetrosyan/httpx-aiohttp/blob/master/LICENSE
+    "httpx-aiohttp>=0.2.0",
+
+    # Daytona SDK: used by the Daytona sandbox provider for create/exec/delete and file operations.
+    # License: Apache 2.0 https://pypi.org/project/daytona/
+    "daytona>=0.179.0",
+
+    # E2B SDK: used by the E2B sandbox provider for create/exec/kill and file operations.
+    # Also drives any e2b-compatible gateway via connection.api_url/sandbox_url.
+    # Lower bound 2.36.0: provider traffic attribution, current template APIs, and stream-open timeout semantics.
+    # Upper bound <3.0.0: the provider depends on the E2B 2.x SDK contract.
+    # Updated: Tue Aug 04, 2026 with e2b>=2.36.0,<3.0.0
+    # License: MIT https://github.com/e2b-dev/E2B/blob/e2b@2.36.0/packages/python-sdk/LICENSE
+    "e2b>=2.36.0,<3.0.0",
+
+    # boto3: AWS SDK used by the ECS Fargate sandbox provider for ECS/EC2/ECR/
+    # CodeBuild/S3/SSM/Secrets Manager calls.
+    # Updated: Tue Jun 03, 2026 with boto3>=1.34
+    # License: Apache 2.0 https://github.com/boto/boto3/blob/develop/LICENSE
+    "boto3>=1.34",
+]
+
+# Rubric judgment backend (design doc §3.1/§3.3): the one-way Gym → data_designer dependency.
+# The rubric-scored benchmark adapter (eval_service/rubric_judge.py) lazy-imports
+# data_designer.rubric at runtime; without this extra, rubric-scored benchmarks fail explicitly
+# (RUBRIC_JUDGE_FAILED), never silently. data-forge is not published to PyPI — sync locally
+# against the sibling checkout via the [tool.uv.sources] entry below.
+rubric = [
+    "data-forge",
+]
+
+# Keep OpenShell opt-in so its platform-specific SDK wheel cannot block installs for other providers.
+openshell = [
+    # OpenShell SDK: used by the OpenShell sandbox provider for gateway create/exec/delete over gRPC.
+    # Lower bound 0.0.92: the version that made `workspace` a required argument on sandbox
+    # lifecycle calls. Upper bound <0.1: the SDK is alpha 0.0.x and the provider also relies on
+    # its generated protos (openshell._proto), so minor bumps can break call shapes; the
+    # SDK-conformance unit test guards the raise of this ceiling.
+    # Updated: Tue Jul 14, 2026 with openshell>=0.0.92,<0.1
+    # License: Apache 2.0 https://github.com/NVIDIA/OpenShell/blob/main/LICENSE
+    "openshell>=0.0.92,<0.1",
+]
+
+# Telemetry is intentionally not part of the v1 AgentGym distribution. nemo-gym's wheel
+# telemetry extra currently resolves an API-incompatible PyPI nemo-lens release; downstream
+# deployments must opt in explicitly only after a compatible release is available.
+
+# We include dev dependencies as an extra since technically each server module is a consumer (which means we cannot use dependency groups, which are intended to be within a project).
+dev = [
+    # gprof2dot: Used for outputting dot graphs for profiling.
+    # Updated: Wed Feb 25, 2026 with gprof2dot==2025.4.14
+    # License: LGPLv3+ https://github.com/jrfonseca/gprof2dot/blob/master/COPYING.LESSER
+    "gprof2dot",
+
+    # Pre-commit: Used for pre-commit hooks.
+    # Updated: Thu Sep 04, 2025 with pre-commit==4.3.0
+    # License: MIT https://github.com/pre-commit/pre-commit/blob/e70b313c8017b2b6d7844e91795c9d41b9ceb9fb/LICENSE
+    "pre-commit>=3.6.0",
+
+    # Mypy: Used for Python type checking.
+    # Updated: Thu Sep 04, 2025 with mypy==1.17.1
+    # License: MIT https://github.com/python/mypy/blob/645b421fa23a3f0d63f651059fa1e8318a6f214a/LICENSE
+    "mypy>=1.8.0",
+
+    # Ruff: Used for Python code formatting and linting.
+    # Updated: Fri Jul 25, 2025 with ruff==0.12.5
+    # License: MIT https://github.com/astral-sh/ruff/blob/21ac16db85452c2c196d3b9cc61fb27b7b81f3f7/LICENSE
+    "ruff",
+
+    # Coverage: Used for Python code coverage.
+    # Updated: Fri Jul 25, 2025 with coverage[toml]==7.10.0
+    # License: Apache 2.0 https://github.com/nedbat/coveragepy/blob/a2baa66b55ca71ea6b35009f2b4a51ff8fda1753/LICENSE.txt
+    "coverage[toml]",
+
+    # Pytest: Used for Python test orchestration.
+    # Updated: Fri Jul 25, 2025 with pytest-cov==5.0.0, pytest-xdist==3.6.1, pytest==7.4.3, and pytest-asyncio==0.21.1
+    # pytest-cov license: MIT https://github.com/pytest-dev/pytest-cov/blob/9d6d57c78627d4811fc473610d61a0b7225e4b40/LICENSE
+    # pytest-xdist license: MIT https://github.com/pytest-dev/pytest-xdist/blob/2f1d80cb9d83ea2d91bba741ef5deffa9f8f85bf/LICENSE
+    # pytest license: MIT https://github.com/pytest-dev/pytest/blob/5989efe3efec31a9d14f550d89903b6311dfc828/LICENSE
+    # pytest-asyncio: Apache 2.0 https://github.com/pytest-dev/pytest-asyncio/blob/66b9f8e31f5f3c3bcf124a52f316516e70c90b46/LICENSE
+    "pytest-cov",
+    "pytest-xdist",
+    "pytest",
+    "pytest-asyncio",
+
+    # DefusedXML: Hardened XML parsing for the GitLab JUnit relay receiver.
+    # License: Python Software Foundation License
+    "defusedxml>=0.7.1",
+
+    # Requests-mock: Used for mocking HTTP requests in tests
+    # Updated: Fri Jul 25, 2025 and requests-mock==1.12.1
+    # License: Apache 2.0 https://github.com/jamielennox/requests-mock/blob/9742d02a8cad17276dbeba7b300b6d27ae1b6fb1/LICENSE
+    "requests-mock",
+
+    # Zstandard: Reads DSH session usage journals in agent tests.
+    # License: BSD 3-Clause https://github.com/indygreg/python-zstandard/blob/main/LICENSE
+    "zstandard>=0.22",
+]
+
+[dependency-groups]
+# Codec-bearing packages excluded from the shipped package and container.
+# Not published to PyPI. Versions are resolved and tracked in uv.lock.
+# docker/install_codec_deps.sh pins these explicitly to their uv.lock versions;
+# update the script when uv lock bumps them.
+codec = [
+    "opencv-python-headless",
+    "pynvvideocodec",
+    "torchcodec",
+    "torchvision",
+    "torchaudio",
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv]
+managed = true
+required-version = ">=0.9.30"
+# AgentGym currently supports Python 3.13 on the deployment targets it ships to.
+# Keeping the lock scoped to those environments avoids resolving unrelated
+# future-Python forks for optional codec/vLLM dependencies.
+environments = [
+    "python_full_version >= '3.13.14' and python_full_version < '3.14' and sys_platform == 'win32'",
+    "python_full_version >= '3.13.14' and python_full_version < '3.14' and sys_platform == 'linux'",
+]
+# grpcio is a transitive dependency of ray. Pin the lower bound here to
+# ensure uv selects a CVE-safe version across all resolver paths.
+# Updated Sun Jun 22, 2026 (CVE remediation)
+constraint-dependencies = [
+    "grpcio>=1.81.0rc1",
+]
+# override-dependencies overrides transitive dep version pins that conflict with
+# Python 3.13 wheel availability. Server venvs inherit this via the editable
+# nemo-gym install (uv >=0.11.24).
+override-dependencies = [
+    # segale pins spacy==3.8.4 which has no cp313 wheels; 3.8.13+ does.
+    "spacy>=3.8.13",
+
+    # Codec-bearing packages — never installed in the shipped package or container.
+    # Binary wheels bundle libavcodec / static FFmpeg executables (H.264, H.265, AAC)
+    # that may incur MPEG-LA royalties. Servers that genuinely need these declare
+    # them in their own overrides.txt (requirements.txt servers) or
+    # [tool.uv] override-dependencies (pyproject.toml servers), which takes
+    # precedence. Reinstall for testing via docker/install_codec_deps.sh.
+    "opencv-python-headless; sys_platform == 'never'",
+    "pynvvideocodec; sys_platform == 'never'",
+    "torchcodec; sys_platform == 'never'",
+    "torchvision; sys_platform == 'never'",
+    "torchaudio; sys_platform == 'never'",
+    "pycountry; sys_platform == 'never'",
+]
+# NOTE: server venvs install nemo-gym editably and inherit this list, so anything
+# here is also silently dropped from them (uv >=0.11.24). Servers that need a
+# dropped package must re-enable it via their own overrides.txt or
+# [tool.uv] override-dependencies. Context: https://github.com/NVIDIA-NeMo/Gym/pull/1835
+exclude-dependencies = [
+    # fasttext-wheel has no cp313 wheels and fails to compile on Python 3.13
+    # (missing #include <cstdint> in src/args.cc). Excluded as a transitive dep
+    # of unbabel-comet; wmt_translation does not import fasttext at runtime.
+    "fasttext-wheel",
+    # Exclude unwanted dependencies from mlflow
+    "alembic",
+    "blinker",
+    "cryptography",
+    "flask",
+    "flask-cors",
+    "graphene",
+    "graphql-core",
+    "graphql-relay",
+    "gunicorn",
+    "huey",
+    "prettytable",
+    "skops",
+    "sqlalchemy",
+    "wcwidth",
+    "werkzeug",
+    "waitress",
+    # diskcache has unfixed CVEs and is no longer a transitive dep since vllm>=0.24.0.
+    # Explicitly block it to prevent re-introduction via future transitive pulls.
+    "diskcache",
+]
+
+[tool.uv.sources]
+# The rubric extra's data-forge resolves to the sibling DataDesigner checkout (one-way Gym →
+# data_designer dependency, design doc §3.1). Only consulted when the rubric extra is requested.
+data-forge = { path = "../AscendAgent-DataDesigner", editable = true }
+
+[tool.setuptools.package-data]
+# Gym components come from the pinned nemo-gym wheel plus the separate overlay artifact.
+# The AgentGym wheel only ships its own code, deployment profiles and sandbox overrides.
+"agent_gym" = ["configs/**/*.yaml", "configs/**/*.yml", "tools/**/*"]
+"eval_service" = ["profiles/*.yaml"]
+
+[tool.distutils.egg_info]
+egg_base = "cache"
+
+[project.urls]
+Upstream = "https://github.com/NVIDIA-NeMo/Gym"
+
+[project.scripts]
+
+agent-gym = "agent_gym.launcher:main"
+gym = "agent_gym.launcher:main"
+ng = "agent_gym.launcher:main"
+
+########################## DEPRECATED COMMANDS ##########################
+
+# Run/test scripts for servers.
+nemo_gym_run = "agent_gym.launcher:main"
+ng_run = "agent_gym.launcher:main"
+nemo_gym_test = "agent_gym.launcher:main"
+ng_test = "agent_gym.launcher:main"
+nemo_gym_test_all = "agent_gym.launcher:main"
+ng_test_all = "agent_gym.launcher:main"
+
+# Development convenience aliases.
+nemo_gym_dev_test = "agent_gym.launcher:main"
+ng_dev_test = "agent_gym.launcher:main"
+nemo_gym_init_resources_server = "agent_gym.launcher:main"
+ng_init_resources_server = "agent_gym.launcher:main"
+
+# Benchmarks
+nemo_gym_list_benchmarks = "agent_gym.launcher:main"
+ng_list_benchmarks = "agent_gym.launcher:main"
+nemo_gym_prepare_benchmark = "agent_gym.launcher:main"
+ng_prepare_benchmark = "agent_gym.launcher:main"
+
+# Rollout collection
+nemo_gym_collect_rollouts = "agent_gym.launcher:main"
+ng_collect_rollouts = "agent_gym.launcher:main"
+nemo_gym_e2e_collect_rollouts = "agent_gym.launcher:main"
+ng_e2e_collect_rollouts = "agent_gym.launcher:main"
+nemo_gym_aggregate_rollouts = "agent_gym.launcher:main"
+ng_aggregate_rollouts = "agent_gym.launcher:main"
+
+# Prompt materialization
+nemo_gym_materialize_prompts = "agent_gym.launcher:main"
+ng_materialize_prompts = "agent_gym.launcher:main"
+
+# Reward profiling
+nemo_gym_reward_profile = "agent_gym.launcher:main"
+ng_reward_profile = "agent_gym.launcher:main"
+
+# Dataset management
+nemo_gym_upload_dataset_to_gitlab = "agent_gym.launcher:main"
+ng_upload_dataset_to_gitlab = "agent_gym.launcher:main"
+nemo_gym_download_dataset_from_gitlab = "agent_gym.launcher:main"
+ng_download_dataset_from_gitlab = "agent_gym.launcher:main"
+nemo_gym_prepare_data = "agent_gym.launcher:main"
+ng_prepare_data = "agent_gym.launcher:main"
+
+# HF dataset upload and download
+nemo_gym_upload_dataset_to_hf = "agent_gym.launcher:main"
+ng_upload_dataset_to_hf = "agent_gym.launcher:main"
+nemo_gym_download_dataset_from_hf = "agent_gym.launcher:main"
+ng_download_dataset_from_hf = "agent_gym.launcher:main"
+
+# Gitlab -> HF (upload then delete)
+nemo_gym_gitlab_to_hf_dataset = "agent_gym.launcher:main"
+ng_gitlab_to_hf_dataset = "agent_gym.launcher:main"
+
+# Manually delete from Gitlab
+nemo_gym_delete_dataset_from_gitlab = "agent_gym.launcher:main"
+ng_delete_dataset_from_gitlab = "agent_gym.launcher:main"
+
+# Configuration utils
+nemo_gym_dump_config = "agent_gym.launcher:main"
+ng_dump_config = "agent_gym.launcher:main"
+
+nemo_gym_validate = "agent_gym.launcher:main"
+ng_validate = "agent_gym.launcher:main"
+
+# Display help
+nemo_gym_help = "agent_gym.launcher:main"
+ng_help = "agent_gym.launcher:main"
+
+# Server status
+nemo_gym_status = "agent_gym.launcher:main"
+ng_status = "agent_gym.launcher:main"
+
+# Environment-specific uv pip list
+nemo_gym_pip_list = "agent_gym.launcher:main"
+ng_pip_list = "agent_gym.launcher:main"
+
+# Display version
+nemo_gym_version = "agent_gym.launcher:main"
+ng_version = "agent_gym.launcher:main"
+
+# Re-install Gym and dependencies
+nemo_gym_reinstall = "agent_gym.launcher:main"
+ng_reinstall = "agent_gym.launcher:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = [
+    "agent_gym",
+    "agent_gym.*",
+    "eval_service",
+    "eval_service.*",
+]
+
+################################################
+# Testing
+################################################
+
+[tool.pytest.ini_options]
+# durations=0 will display all tests execution time, sorted in ascending order starting from the slowest one.
+# -vv will also display tests with duration = 0.00s
+addopts = "--verbose --pyargs --durations=0 --strict-markers"  # always add these arguments to pytest
+testpaths = ["tests"]
+# directories to ignore when discovering tests
+norecursedirs = [
+    "overlay",
+    "external",
+    "examples",
+    "docs",
+    "scripts",
+    "tools",
+    "tutorials",
+    "deps",
+    "results",
+    "*.egg",
+    ".*",
+    "_darcs",
+    "build",
+    "CVS",
+    "dist",
+    "venv",
+    "{arch}"
+]
+log_cli = true
+log_cli_level = "INFO"
+cache_dir = "cache/.pytest_cache"
+filterwarnings = "ignore::DeprecationWarning"
+asyncio_mode = "auto"
+# markers to select tests, use `pytest --markers` to see all available markers, `pytest -m "<marker>"` to select tests
+markers = [
+    "unit: marks unit test, i.e. testing a single, well isolated functionality (deselect with '-m \"not unit\"')",
+    "integration: marks test checking the elements when integrated into subsystems (deselect with '-m \"not integration\"')",
+    "system: marks test working at the highest integration level (deselect with '-m \"not system\"')",
+    "acceptance: marks test checking whether the developed product/model passes the user defined acceptance criteria (deselect with '-m \"not acceptance\"')",
+    "docs: mark tests related to documentation (deselect with '-m \"not docs\"')",
+    "sandbox: marks sandbox unit tests (deselect with '-m \"not sandbox\"')",
+    "skipduringci: marks tests that are skipped during ci as they are addressed by Jenkins jobs but should be run to test user setups",
+    "pleasefixme: marks tests that are broken and need fixing",
+]
+
+[tool.coverage.run]
+command_line = "-m pytest --durations=10"
+omit = [
+    "tests/*",
+    "temp*",
+    "results/*",
+    "/tmp/*",
+    "overlay/*",
+    "scripts/*",
+]
+data_file = "results/.coverage"
+concurrency = ["thread", "multiprocessing"]
+
+[tool.coverage.paths]
+source = ["agent_gym/", "eval_service/", "/workspace/agent_gym", "/workspace/eval_service"]
+
+[tool.coverage.html]
+directory = "results/htmlcov"
+
+[tool.coverage.report]
+skip_covered = true
+sort = "miss"
+# Coverage uses this precision for both display and fail_under comparisons.
+# The new AgentGym-owned packages measured 81.34% in r8; keep that as a visible
+# regression floor and raise it as targeted tests are added.
+precision = 2
+fail_under = 81.0
+exclude_also = [
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+    "pass",
+]
+
+################################################
+# Linting, formatting, and QOL (using ruff)
+################################################
+[tool.ruff]
+# Line length configuration
+line-length = 119
+target-version = "py313"
+
+cache-dir = "cache/.ruff_cache"
+# Exclude common directories that shouldn't be linted
+exclude = [
+    "resources",
+    ".git",
+    ".github",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "*.egg",
+    "build",
+    "dist",
+    "setup.py",
+]
+# Files to completely ignore
+extend-exclude = [
+    "*.ipynb",
+    # Vendored apple/ToolSandbox source — kept verbatim (see its VENDORING.md).
+    "resources_servers/toolsandbox/tool_sandbox",
+]
+[tool.ruff.lint]
+# Configure linting rules
+select = [
+    "F541",  # f-string without any placeholders
+    "F841",  # local variable assigned but never used
+    "F401",  # imported but unused
+    "E741",  # ambiguous variable name
+    "F821",  # undefined name
+    "E266",  # too many leading '#' for block comment
+    "I",     # isort
+]
+
+# Additional rules can be added here
+ignore = [
+    "E501",  # Line too long - handled by formatter
+]
+[tool.ruff.lint.isort]
+known-first-party = ["agent_gym", "eval_service"]
+known-third-party = ["examples", "scripts"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+lines-after-imports = 2
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore import violations in __init__ files
+"__init__.py" = ["F401", "F403"]
+# Ignore docstring requirements in test files
+"test_*.py" = ["D101", "D103"]
+"*_test.py" = ["D101", "D103"]
+"tests/*.py" = ["D101", "D103"]
+
+[tool.ruff.format]
+# Code formatting configuration
+quote-style = "double"
+skip-magic-trailing-comma = false
+line-ending = "auto"

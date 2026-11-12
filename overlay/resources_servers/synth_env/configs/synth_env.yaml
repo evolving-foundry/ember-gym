@@ -1,0 +1,26 @@
+# Resources server: owns this environment's session state, replay dynamics and verify.
+synth_env:                                  # instance name — how agents/benchmark configs refer to this server
+  resources_servers:
+    synth_env:                              # implementation directory under resources_servers/
+      allowed_agents: [synth_env_agent]
+      entrypoint: app.py
+      domain: agent
+      verified: false                       # set true once the benchmark has been baselined and reviewed
+      description: "Synthetic environment host: terminal profile (replay + M3 hybrid 类真实 dynamics)
+        + office profile (six-pack: state/rules/events/npc/visibility/llm_sim content cage, M2)."
+      value: "Turn user data into a virtual feedback environment: seed/reset/observe/step/verify with
+        environment-side budgets and multi-version package coexistence (C-SE-1/C-SE-2)."
+      # bash/step/reset auto-expose over MCP (design §3.11); /admin/* is filtered by mcp_tools().
+      expose_tools_over_mcp: true
+      # Asset packages loaded at startup (repo-root relative); runtime load goes through /admin.
+      # One host serves both profiles side by side; sessions bind to their package at seed time.
+      # llm_sim_model_server is deliberately unset here: the office demo package ships without a
+      # sim_model pin, so its NPC cards run in deterministic template mode (决议 3 fallback).
+      package_paths:
+        - benchmarks/synth-terminal/assets/synth_terminal_demo_v1.zip
+        - benchmarks/synth-terminal/assets/synth_terminal_demo_v2_hybrid.zip
+        - benchmarks/synth-office/assets/synth_office_demo_v1.zip
+        - benchmarks/synth-npu-faultdiag/assets/gym-env-package-v1-f6043dba6c0bd73e.zip
+        - benchmarks/synth-npu-faultdiag-v2/assets/gym-env-package-v2-14f4c49ab56332a0.zip
+        - benchmarks/synth-curator-docx-pdf-ocr-e2e/assets/gym-env-package-v1-bb447dbe57b41417.zip
+      session_ttl_s: 3600

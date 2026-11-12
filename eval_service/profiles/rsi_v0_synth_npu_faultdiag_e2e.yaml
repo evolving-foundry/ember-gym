@@ -1,0 +1,39 @@
+# Purpose-built E2E profile: external dsh(TS) RSI outer loop → eval_service → real gym rollouts
+# on the npu-faultdiag synthetic environment (DataDesigner envsynth package, office profile).
+# The `dsh` adapter points at the benchmark-coupled config (config_dsh.yaml chains
+# resources_servers/synth_env + dsh_agent); dsh brings its own credentials
+# ($DSH_HOME/settings.yaml, volcano gateway) so no `model:` pin is emitted. The harness wires
+# the per-rollout MCP session token into dsh via a --patch overlay (dsh-mcp-client).
+# Dataset is materialized locally (nemo_gym.prompt.materialize_prompts, prompt_config
+# benchmarks/prompts/synth-npu-faultdiag/agent_dsh.yaml) because `gym eval run --no-serve
+# --input` requires rows that already carry responses_create_params.
+profile_id: rsi-v0-synth-npu-faultdiag-e2e
+
+adapters:
+  dsh:
+    # harness_agent is the composition key the running config registers the agent under
+    # (top-level `synth_npu_faultdiag_dsh_agent` in config_dsh.yaml), not the instance
+    # name `dsh_agent` — nemo_gym.rollout_collection._validate_agent_names resolves
+    # --agent against top-level keys.
+    harness_agent: synth_npu_faultdiag_dsh_agent
+    version: "1"
+    config_paths:
+      - benchmarks/synth-npu-faultdiag/config_dsh.yaml
+    description: >-
+      dsh CLI harness (headless one-shot subprocess, self-held volcano credentials) wired to
+      the synth_env server stack (npu-faultdiag@v1 office package) over a per-rollout MCP
+      session token; accepted via real synth-npu-faultdiag rollouts (2026-11-04).
+
+benchmarks:
+  synth-npu-faultdiag:
+    dataset_fpath: tmp/e2e_faultdiag/data/synth-npu-faultdiag_dsh_materialized.jsonl
+    # OF-2: no holdout registered for E2E — the promotion pipeline is out of scope here.
+    holdout_dataset_fpath: null
+    dataset_version: v2026.11.04
+    config_paths: []
+    probe_split_size: 4
+
+budgets:
+  split_eval_soft_limit: 10
+  lineage_max_evals: 500
+  lineage_max_tokens: 2000000000

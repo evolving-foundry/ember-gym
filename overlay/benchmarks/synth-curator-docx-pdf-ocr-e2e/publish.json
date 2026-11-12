@@ -1,0 +1,46 @@
+{
+  "assets": {
+    "config": "benchmarks/synth-curator-docx-pdf-ocr-e2e/config.yaml",
+    "generatedData": "benchmarks/synth-curator-docx-pdf-ocr-e2e/data/synth-curator-docx-pdf-ocr-e2e.jsonl",
+    "manifest": "benchmarks/synth-curator-docx-pdf-ocr-e2e/manifest.yaml",
+    "packageZip": "benchmarks/synth-curator-docx-pdf-ocr-e2e/assets/gym-env-package-v1-ee3992a5604b89eb.zip",
+    "prepareScript": "benchmarks/synth-curator-docx-pdf-ocr-e2e/prepare.py",
+    "prompt": "benchmarks/prompts/synth-curator-docx-pdf-ocr-e2e/agent.yaml"
+  },
+  "benchmark": "synth-curator-docx-pdf-ocr-e2e",
+  "gymContract": {
+    "design": "Gym:合成环境接入设计_v0.2.md",
+    "sections": [
+      "3.5",
+      "3.6"
+    ],
+    "taskFields": [
+      "task_id",
+      "env_release",
+      "goal",
+      "success_check",
+      "max_steps",
+      "seed"
+    ],
+    "taskSchema": "synth-env-task-v1"
+  },
+  "registration": {
+    "status": "not-requested"
+  },
+  "release": {
+    "assetSha256": "76d2bc87ff611736b371be30558c11e37bd4831a37a46e467236bdd8436f84bf",
+    "buildFingerprint": "ae5b8123842c94c4",
+    "fingerprint": "ee3992a5604b89eb",
+    "refId": "curator-docx-pdf-ocr-e2e",
+    "version": 1
+  },
+  "runnable": true,
+  "schemaVersion": "env-gym-publish-v1",
+  "status": "published",
+  "taskset": {
+    "fingerprint": "1a8f87ce9f81ad4c",
+    "itemCount": 1,
+    "refId": "curator-docx-pdf-ocr-e2e-env",
+    "version": 1
+  }
+}

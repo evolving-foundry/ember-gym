@@ -1,0 +1,8 @@
+gaia:
+  resources_servers:
+    gaia:
+      entrypoint: app.py
+      domain: other
+      verified: true
+      description: GAIA public validation tasks with deterministic quasi-exact answer grading
+      value: Improve general assistant reasoning and tool use

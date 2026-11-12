@@ -1,0 +1,33 @@
+# Docker sandbox provider overlay for AgentGym deployments.
+#
+# This is a complete provider config, not a patch against the nemo-gym wheel.
+# It preserves the downstream GYM_DOCKER_NETWORK switch without modifying the
+# installed framework source.
+sandbox:
+  default_metadata:
+    sandbox-api: docker-cli
+  docker:
+    create:
+      keepalive_shell: /bin/sh
+      keepalive_cmd: "while :; do sleep 2147483647; done"
+      start_timeout_s: 600
+      use_init: true
+      apply_resource_limits: true
+      publish_host: 127.0.0.1
+      network: ${oc.decode:${oc.env:GYM_DOCKER_NETWORK,null}}
+      # Isolation knobs -- opt in when running untrusted code:
+      # network: none
+      # read_only: true
+      # cap_drop: ["ALL"]
+      # security_opt: ["no-new-privileges"]
+      # pids_limit: 512
+    exec:
+      default_timeout_s: 180
+      concurrency: 32
+      # exec_shell: /bin/bash
+    probe:
+      command: printf docker-sandbox-ready
+      expected_stdout: docker-sandbox-ready
+      timeout_s: 30
+      deadline_s: 60
+      stable_count: 1

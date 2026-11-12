@@ -1,0 +1,720 @@
+schema_version: 2
+overlay_version: 2026.10.30-2702525-r17
+framework:
+  distribution: nemo-gym
+  version: 0.7.0
+  wheel_sha256: cce78fc3fd048f36b4c465fe8e9fe3cc5e7afb6f6e287bfe831f156988508a70
+  package_tree_sha256: 967dd976ee2cb6de9186c327cb76c4ada5818324ec39742649aad693cf3ec5b6
+repo:
+  commit: 2b0e76074829ffc73ef5cd9bc9482f594400fd43
+components:
+  benchmarks/aalcr:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 8abca8b92af6630bcab7955b327027350eb9a55c3d7f5777ecb58c386daf8b62
+    depends_on:
+    - component: responses_api_models/local_vllm_model
+      backend: wheel
+    - component: responses_api_models/openai_model
+      backend: overlay
+    reviewed_by: migration-review-2026-10-28
+  benchmarks/arc-agi:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: a4c7d75f882517ffd00618aa0bc1794c4203a701048592aade0b5d49a3f77e3e
+    depends_on:
+    - component: benchmarks/prompts
+      backend: overlay
+    - component: resources_servers/arc_agi
+      backend: overlay
+    reviewed_by: unchanged
+  benchmarks/arc-agi-v2:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 7a347f2d854841b3464cbbae2ff892dbc8ad449b97a7a79f3d6ebb3f91bf47c2
+    depends_on:
+    - component: benchmarks/prompts
+      backend: overlay
+    - component: resources_servers/arc_agi
+      backend: overlay
+    reviewed_by: unchanged
+  benchmarks/arc-agi-v3:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: a01f163d597982783ff8951fa9724b630fad7b5aec8070490753f0cdc86685f6
+    depends_on:
+    - component: benchmarks/prompts
+      backend: overlay
+    - component: responses_api_agents/arc_agi_v3
+      backend: overlay
+    reviewed_by: unchanged
+  benchmarks/assistantbench:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: cdf8d344ca79f53de7a2743bb848d67fa9a454f97e0c5aa6c3d8bde2a6f51748
+    depends_on: []
+    reviewed_by: unchanged
+  benchmarks/browsecomp:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 7f19a45a5856100bbeb48b5cf00b1c52501b0b5b31908f8f41a28fb34423c4fe
+    depends_on: []
+    reviewed_by: migration-review-2026-10-28
+  benchmarks/gaia:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 9ce1bdf8680b0113a758975c350542ca6a6092767a845d7b8f812d3d1f7b12af
+    depends_on:
+    - component: resources_servers/gaia
+      backend: overlay
+    reviewed_by: unchanged
+  benchmarks/gdpval:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 73a3266b3045254823f49eb505b7d841346c727d268dc08c4cd7153a0b7f90d9
+    depends_on: []
+    reviewed_by: migration-review-2026-10-28
+  benchmarks/gsm8k:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 935493e4fa26710b298318936781040b688cc80baaaa4858a009d7076151b3c1
+    depends_on:
+    - component: benchmarks/prompts
+      backend: overlay
+    - component: resources_servers/math_with_judge
+      backend: overlay
+    - component: responses_api_models/openai_model
+      backend: overlay
+    reviewed_by: migration-review-2026-10-28
+  benchmarks/ioi:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 4d52ab43298b6cd88ba652542f80626dab1ee70ac3cc5efc55650ef7f1df2869
+    depends_on:
+    - component: benchmarks/prompts
+      backend: overlay
+    - component: resources_servers/competitive_coding_challenges
+      backend: wheel
+    reviewed_by: migration-review-2026-10-28
+  benchmarks/ioi26:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: ba6a4e5b39a11e0c522258de3c0162f2dfa117b9092b86ba02076215e1bf56ac
+    depends_on:
+    - component: benchmarks/prompts
+      backend: overlay
+    - component: resources_servers/competitive_coding_challenges
+      backend: wheel
+    reviewed_by: migration-review-2026-10-28
+  benchmarks/omniscience:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: b8da2dc25a3c75e6506a353d0f00192dbb650e3115556eca35ab5a2e93fce142
+    depends_on:
+    - component: resources_servers/omniscience
+      backend: wheel
+    reviewed_by: unchanged
+  benchmarks/osworld:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: e3f59a3e28bffb920af3f4795be6ab777e0f540f8d97f883198d8077d04b6f1b
+    depends_on:
+    - component: responses_api_agents/osworld_agent
+      backend: overlay
+    - component: responses_api_models/openai_model
+      backend: overlay
+    reviewed_by: review-fixes-2026-10-28
+  benchmarks/rsi-traj-syn:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: bdaf0887de1a2eaabb5077d63b16366519b491540889fa25ad34c309a6943408
+    depends_on:
+    - component: benchmarks/gsm8k
+      backend: overlay
+    - component: benchmarks/prompts
+      backend: overlay
+    reviewed_by: migration-review-2026-10-28
+  benchmarks/simpleqa:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 828dddb5d059728f5c19d5a48dd8c4dac96188a0537d7785d733edbae8dbc781
+    depends_on:
+    - component: benchmarks/prompts
+      backend: overlay
+    - component: resources_servers/simpleqa
+      backend: wheel
+    reviewed_by: unchanged
+  benchmarks/swebench:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: bc225f7dfc0126a03391ce38201d89a13ca85dcfe82059cec30a15075338776d
+    depends_on:
+    - component: resources_servers/swebench
+      backend: overlay
+    - component: resources_servers/swebench_pro
+      backend: wheel
+    - component: responses_api_agents/opencode_sandboxed_agent
+      backend: overlay
+    reviewed_by: unchanged
+  benchmarks/synth-office:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: e90979ea4c5ea94bf501747d21fad49453299869ebad5dba5439e4611b005e68
+    depends_on:
+    - component: benchmarks/prompts
+      backend: overlay
+    - component: resources_servers/synth_env
+      backend: overlay
+    - component: responses_api_agents/synth_env_agent
+      backend: overlay
+    - component: responses_api_models/openai_model
+      backend: overlay
+    reviewed_by: synth-env-overlay-review-2026-10-30
+  benchmarks/synth-terminal:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: d996c51a7a9bac94d0d7c5c638faeea39390c4a92237b02f397674d64d01a794
+    depends_on:
+    - component: benchmarks/prompts
+      backend: overlay
+    - component: resources_servers/synth_env
+      backend: overlay
+    - component: responses_api_agents/synth_env_agent
+      backend: overlay
+    - component: responses_api_models/openai_model
+      backend: overlay
+    reviewed_by: synth-env-overlay-review-2026-10-30
+  benchmarks/synth-npu-faultdiag:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 867edfbcca27181509b51e027254506b2920673dd51c0cea85874c324f504c2e
+    depends_on:
+    - component: benchmarks/prompts
+      backend: overlay
+    - component: resources_servers/synth_env
+      backend: overlay
+    - component: responses_api_agents/synth_env_agent
+      backend: overlay
+    - component: responses_api_models/openai_model
+      backend: overlay
+    reviewed_by: rebrand-manifest-rebuild-2026-11-06
+  benchmarks/synth-npu-faultdiag-v2:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: e1d9f43241f83da0f1426d0035f97f5c0c24d27165479802db0dac48038b6db4
+    depends_on:
+    - component: benchmarks/prompts
+      backend: overlay
+    - component: resources_servers/synth_env
+      backend: overlay
+    - component: responses_api_agents/synth_env_agent
+      backend: overlay
+    - component: responses_api_models/openai_model
+      backend: overlay
+    reviewed_by: rebrand-manifest-rebuild-2026-11-06
+  benchmarks/synth-curator-docx-pdf-ocr-e2e:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: f98a07f67b87cc6109f430a0ad5f1e63d3c7da954c0280adc9298b10f976afb8
+    depends_on:
+    - component: benchmarks/prompts
+      backend: overlay
+    - component: resources_servers/synth_env
+      backend: overlay
+    - component: responses_api_agents/synth_env_agent
+      backend: overlay
+    - component: responses_api_models/openai_model
+      backend: overlay
+    reviewed_by: pending-user-review
+  benchmarks/tau2:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 88d82a506fd9da38465a2c059591d6dfc43dbc303211fa3265824c156f15d38f
+    depends_on:
+    - component: responses_api_agents/tau2
+      backend: overlay
+    - component: responses_api_models/openai_model
+      backend: overlay
+    reviewed_by: unchanged
+  benchmarks/terminal_bench_2_1:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: d1fbafa87b08414f235bb327a0f1f96df7c00af49c5ddb6274478efc2d8b3ab0
+    depends_on:
+    - component: resources_servers/terminal_bench_2_1
+      backend: overlay
+    - component: responses_api_agents/opencode_sandboxed_agent
+      backend: overlay
+    - component: responses_api_agents/terminus_2_sandboxed_agent
+      backend: overlay
+    reviewed_by: unchanged
+  benchmarks/ugphysics:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 2a9ba6a91f59b208b22cbd429af07509ae98954928ac2898ff0533bdfcae3e53
+    depends_on:
+    - component: resources_servers/ugphysics_judge
+      backend: wheel
+    reviewed_by: unchanged
+  benchmarks/webarena_verified:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 2dbaaddbeb91993242f3f51cb671a779efe6d5142af7ce141d253d763f0d6aac
+    depends_on: []
+    reviewed_by: unchanged
+  benchmarks/workarena:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 81104d30551e152412d641e3126788c4beb8ce1f89378ad04d278af46eb450b7
+    depends_on: []
+    reviewed_by: unchanged
+  resources_servers/arc_agi:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 98c038f6349c5d3d9a8bf6624bfc888fd96a8bc6af152bdd657897df17f064ad
+    depends_on: []
+    reviewed_by: migration-review-2026-10-28
+  resources_servers/gaia:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 8f523948d039c5065a0bb9e9a326157288a652c2dabfbefb907cf23978f7a190
+    depends_on: []
+    reviewed_by: unchanged
+  resources_servers/math_with_judge:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 8a06499d05ebc1536770ba5fc27269860827ce115104c90976801db0c983c6ba
+    depends_on: []
+    reviewed_by: unchanged
+  resources_servers/swebench:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 4c7e29444ade65384abb9107868cea04eb8bc797879eab2dda2fd59d7d60fda4
+    depends_on: []
+    reviewed_by: migration-review-2026-10-28
+  resources_servers/synth_env:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 62ecd06be2dd4243b138560d5a1608ed51d76d96b8fea791c6f4baa4bef01183
+    depends_on:
+    - component: benchmarks/synth-office
+      backend: overlay
+    - component: benchmarks/synth-terminal
+      backend: overlay
+    reviewed_by: synth-env-overlay-review-2026-10-30
+  resources_servers/terminal_bench_2_1:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 4149a748803f7bba4bff7cc9d317eec5296c1f1a1894976da4c0741165c390b8
+    depends_on: []
+    reviewed_by: migration-review-2026-10-28
+  responses_api_agents/arc_agi_v3:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 3d11c28d5526d484225f7090b16e1448b0a455aca6e3b54fbc7991582386697e
+    depends_on: []
+    reviewed_by: unchanged
+  responses_api_agents/browsergym_agent:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 59387be59f2b2444e9669a7bd1ffbf6b8f91edda9207e1bbace7c1716fe36d2c
+    depends_on:
+    - component: responses_api_agents/dsh_agent
+      backend: overlay
+    reviewed_by: unchanged
+  responses_api_agents/claude_code_agent:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 99f9f1de02473c6bb1c714cc756079ed1681e71ae85f771fd88a343e182b29fe
+    depends_on: []
+    reviewed_by: review-fixes-2026-10-28
+  responses_api_agents/dsh_agent:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: a3d98a20150a775e2d9348af1deb808b472f81840da33095c32c87b3ef673157
+    depends_on: []
+    reviewed_by: unchanged
+  responses_api_agents/hermes_agent:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: f2b32f3759e4050f8ced1661384e5ac95250303471b59c01e723269092fa8cfc
+    depends_on: []
+    reviewed_by: migration-review-2026-10-28
+  responses_api_agents/opencode_sandboxed_agent:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 791207c5656a4d573dbe65383f886f27fa81fb1a9dcdae2bf5a4c6a974443e43
+    depends_on: []
+    reviewed_by: review-fixes-2026-10-28
+  responses_api_agents/osworld_agent:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: ab1db86b18fe87fd433117af1896a3d03421ab1790d5930c7c09245b4a52f552
+    depends_on:
+    - component: benchmarks/osworld
+      backend: overlay
+    reviewed_by: review-fixes-2026-10-28
+  responses_api_agents/synth_env_agent:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 5c007515a6856e496c0fc1ff7f23ca52a01e981ec8a1723a30c7370001843af5
+    depends_on:
+    - component: resources_servers/synth_env
+      backend: overlay
+    reviewed_by: synth-env-overlay-review-2026-10-30
+  responses_api_agents/tau2:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 32ecc4dbb2bc9da1ed1a510111317e4c4fac2cd776ac5c246f3f07aaa0731183
+    depends_on: []
+    reviewed_by: migration-review-2026-10-28
+  responses_api_agents/terminus_2_sandboxed_agent:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 0c9b87ae6ea625e202c48cc52d6b35395dfa4450bd5f0cec8629c3963c626db1
+    depends_on: []
+    reviewed_by: migration-review-2026-10-28
+  responses_api_models/dsh_candidate_bridge:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 7eee635861c06ee925521cbb299f59b9daa7a77a68d0648f24d090c5ac772766
+    depends_on:
+    - component: responses_api_agents/dsh_agent
+      backend: overlay
+    reviewed_by: unchanged
+  responses_api_models/openai_model:
+    kind: component
+    complete: true
+    wheel_backed: false
+    tree_sha256: 5c17f816fea3c6a9293d4f5104ffde73b6a0adc4df3719ea8ae1d4026b257944
+    depends_on: []
+    reviewed_by: unchanged
+assets:
+  benchmarks/prompts:
+    kind: asset
+    complete: true
+    wheel_backed: false
+    tree_sha256: 76ebd83e0d3086ed824e3b430c1e752d92d54b1decc3435144bbc36abbbb2db7
+    depends_on:
+    - component: benchmarks/arc-agi
+      backend: overlay
+    - component: benchmarks/arc-agi-v3
+      backend: overlay
+    - component: benchmarks/synth-office
+      backend: overlay
+    - component: benchmarks/synth-terminal
+      backend: overlay
+    reviewed_by: unchanged
+tools:
+  benchmarks/rsi_dataset_tools:
+    kind: tool
+    complete: true
+    wheel_backed: false
+    tree_sha256: f949bd46f35a433bced745fd154296e9318267622ca604b6d4f009f5cd52d1c5
+    depends_on: []
+    reviewed_by: unchanged
+  benchmarks/rsi_direct:
+    kind: tool
+    complete: true
+    wheel_backed: false
+    tree_sha256: 6b01e427e5bbc877c85462f3358a50687e3a58dae79841be504acd9c20bf1099
+    depends_on: []
+    reviewed_by: unchanged
+data_roots:
+- ${AGENT_GYM_DATA_ROOT}
+conflicts:
+- node: benchmarks/aalcr
+  path: config_v1_1.yaml
+  state: both_changed_different
+  resolution: keep_local
+  owner: benchmarks/aalcr
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: benchmarks/browsecomp
+  path: config.yaml
+  state: both_changed_different
+  resolution: keep_local
+  owner: benchmarks/browsecomp
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: benchmarks/gdpval
+  path: README.md
+  state: both_changed_different
+  resolution: keep_local
+  owner: benchmarks/gdpval
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: benchmarks/gdpval
+  path: config.yaml
+  state: both_changed_different
+  resolution: keep_local
+  owner: benchmarks/gdpval
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: benchmarks/gsm8k
+  path: config_codex.yaml
+  state: upstream_removed_local_changed
+  resolution: keep_local
+  owner: benchmarks/gsm8k
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: benchmarks/gsm8k
+  path: config_opencode.yaml
+  state: upstream_removed_local_changed
+  resolution: keep_local
+  owner: benchmarks/gsm8k
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: benchmarks/ioi
+  path: config.yaml
+  state: both_changed_different
+  resolution: keep_local
+  owner: benchmarks/ioi
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: benchmarks/ioi26
+  path: config.yaml
+  state: both_changed_different
+  resolution: keep_local
+  owner: benchmarks/ioi26
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: benchmarks/osworld
+  path: README.md
+  state: both_changed_different
+  resolution: keep_local
+  owner: benchmarks/osworld
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: benchmarks/osworld
+  path: configs/osworld_agent_nano_omni.yaml
+  state: both_changed_different
+  resolution: keep_local
+  owner: benchmarks/osworld
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: benchmarks/osworld
+  path: prepare.py
+  state: both_changed_different
+  resolution: keep_local
+  owner: benchmarks/osworld
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: benchmarks/osworld
+  path: tests/test_run_scripts.py
+  state: both_changed_different
+  resolution: keep_local
+  owner: benchmarks/osworld
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: resources_servers/arc_agi
+  path: README.md
+  state: both_added_different
+  resolution: keep_local
+  owner: resources_servers/arc_agi
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: resources_servers/arc_agi
+  path: app.py
+  state: both_added_different
+  resolution: keep_local
+  owner: resources_servers/arc_agi
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: resources_servers/arc_agi
+  path: configs/arc_agi.yaml
+  state: both_added_different
+  resolution: keep_local
+  owner: resources_servers/arc_agi
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: resources_servers/arc_agi
+  path: requirements.txt
+  state: both_added_different
+  resolution: keep_local
+  owner: resources_servers/arc_agi
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: resources_servers/arc_agi
+  path: task_data.py
+  state: both_added_different
+  resolution: keep_local
+  owner: resources_servers/arc_agi
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: resources_servers/arc_agi
+  path: tests/test_app.py
+  state: both_added_different
+  resolution: keep_local
+  owner: resources_servers/arc_agi
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: resources_servers/swebench
+  path: app.py
+  state: both_added_different
+  resolution: keep_local
+  owner: resources_servers/swebench
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: resources_servers/swebench
+  path: requirements.txt
+  state: both_added_different
+  resolution: keep_local
+  owner: resources_servers/swebench
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: resources_servers/terminal_bench_2_1
+  path: app.py
+  state: both_added_different
+  resolution: keep_local
+  owner: resources_servers/terminal_bench_2_1
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: resources_servers/terminal_bench_2_1
+  path: configs/terminal_bench_2_1.yaml
+  state: both_added_different
+  resolution: keep_local
+  owner: resources_servers/terminal_bench_2_1
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: resources_servers/terminal_bench_2_1
+  path: requirements.txt
+  state: both_added_different
+  resolution: keep_local
+  owner: resources_servers/terminal_bench_2_1
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: responses_api_agents/hermes_agent
+  path: requirements.txt
+  state: both_changed_different
+  resolution: keep_local
+  owner: responses_api_agents/hermes_agent
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: responses_api_agents/opencode_sandboxed_agent
+  path: app.py
+  state: both_added_different
+  resolution: keep_local
+  owner: responses_api_agents/opencode_sandboxed_agent
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: responses_api_agents/opencode_sandboxed_agent
+  path: requirements.txt
+  state: both_added_different
+  resolution: keep_local
+  owner: responses_api_agents/opencode_sandboxed_agent
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: responses_api_agents/osworld_agent
+  path: requirements.txt
+  state: both_added_different
+  resolution: keep_local
+  owner: responses_api_agents/osworld_agent
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: responses_api_agents/osworld_agent
+  path: uv.toml
+  state: both_added_different
+  resolution: keep_local
+  owner: responses_api_agents/osworld_agent
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: responses_api_agents/tau2
+  path: app.py
+  state: both_added_different
+  resolution: keep_local
+  owner: responses_api_agents/tau2
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: responses_api_agents/tau2
+  path: configs/tau2.yaml
+  state: both_added_different
+  resolution: keep_local
+  owner: responses_api_agents/tau2
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: responses_api_agents/tau2
+  path: configs/tau2_agent_turn_limit.yaml
+  state: both_added_different
+  resolution: keep_local
+  owner: responses_api_agents/tau2
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: responses_api_agents/tau2
+  path: requirements.txt
+  state: both_added_different
+  resolution: keep_local
+  owner: responses_api_agents/tau2
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: responses_api_agents/terminus_2_sandboxed_agent
+  path: app.py
+  state: both_added_different
+  resolution: keep_local
+  owner: responses_api_agents/terminus_2_sandboxed_agent
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: responses_api_agents/terminus_2_sandboxed_agent
+  path: configs/terminus_2_sandboxed_agent.yaml
+  state: both_added_different
+  resolution: keep_local
+  owner: responses_api_agents/terminus_2_sandboxed_agent
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: responses_api_agents/terminus_2_sandboxed_agent
+  path: requirements.txt
+  state: both_added_different
+  resolution: keep_local
+  owner: responses_api_agents/terminus_2_sandboxed_agent
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28
+- node: responses_api_agents/terminus_2_sandboxed_agent
+  path: tests/test_observability.py
+  state: both_added_different
+  resolution: keep_local
+  owner: responses_api_agents/terminus_2_sandboxed_agent
+  review_status: accepted
+  reviewed_by: migration-review-2026-10-28

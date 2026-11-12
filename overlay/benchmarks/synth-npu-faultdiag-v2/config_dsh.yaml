@@ -1,0 +1,39 @@
+# synth-npu-faultdiag-v2 chained to the dsh agent harness (headless profile).
+# Mirrors benchmarks/synth-npu-faultdiag/config_dsh.yaml with the v2 dataset and
+# prompts; same server topology and names so the running stack's discovery
+# (/global_config_dict_yaml) resolves identically. dsh owns its model credentials
+# (volcano gateway, $DSH_HOME/settings.yaml) — no Gym model_server is wired.
+config_paths:
+- resources_servers/synth_env/configs/synth_env.yaml
+
+synth_env:
+  resources_servers:
+    synth_env:
+      allowed_agents: [synth_env_agent, dsh_agent]
+
+synth_npu_faultdiag_v2_dsh_agent:
+  responses_api_agents:
+    dsh_agent:
+      entrypoint: app.py
+      resources_server:
+        type: resources_servers
+        name: synth_env
+      concurrency: 4
+      timeout: 900
+      datasets:
+      - name: synth-npu-faultdiag-v2
+        type: benchmark
+        jsonl_fpath: benchmarks/synth-npu-faultdiag-v2/data/synth-npu-faultdiag-v2.jsonl
+        prompt_config: benchmarks/prompts/synth-npu-faultdiag-v2/agent_dsh.yaml
+        prepare_script: benchmarks/synth-npu-faultdiag-v2/prepare.py
+
+# Explicit legacy_agent relay (recommended by the Gym deprecation notice): with this
+# block the agent is always reached through an environment server, which keeps
+# `gym eval run --no-serve` (eval_service path) routing identical to serve mode.
+synth_npu_faultdiag_v2_environment_server:
+  environment_servers:
+    legacy_agent:
+      entrypoint: app.py
+      agent_server:
+        type: responses_api_agents
+        name: synth_npu_faultdiag_v2_dsh_agent

@@ -1,0 +1,62 @@
+# RSI profile for ARC-AGI public evaluation split: 400 tasks, per-task reward is a
+# deterministic 0/1 grid exact match (resources_servers/arc_agi/app.py), aggregate
+# metric = reward_mean. Upgraded from rsi_v0_arc_agi_e2e.yaml to the v1 contract:
+# RSI train/holdout split, tier presets, and a dsh_candidate adapter for the
+# materialized RSI candidate. Dataset files under data/rsi/ are Git-ignored local
+# artifacts; rebuild the benchmark and split with:
+#   bash scripts/prepare_data.sh prepare arc-agi
+#   bash scripts/prepare_data.sh render arc-agi
+#   bash scripts/prepare_data.sh rsi arc-agi
+# The split source must be the materialized JSONL: eval_service writes dataset rows
+# verbatim to `gym eval run --no-serve --input`, which requires rows carrying
+# responses_create_params.
+profile_id: rsi-v1-arc-agi
+
+adapters:
+  dsh:
+    harness_agent: arc_agi_dsh_agent
+    version: "arc-agi-gym-v1"
+    description: >-
+      DSH CLI harness (headless one-shot subprocess, self-held credentials) wired to the
+      arc-agi server stack; deterministic 0/1 grid exact-match verification.
+  dsh_candidate:
+    harness_agent: arc_agi_dsh_agent
+    version: "arc-agi-rsi-dsh-candidate-v1"
+    config_paths:
+      - benchmarks/arc-agi/config_dsh_candidate.yaml
+    source_paths:
+      - responses_api_agents/dsh_agent
+    manifest_env: [RSI_CANDIDATE_ID, RSI_DSH_COMMAND, RSI_DSH_HOME, RSI_DSH_WORKSPACE_ROOT, RSI_DSH_TIMEOUT_S]
+    description: >-
+      ARC-AGI rollout executed by the materialized RSI DSH candidate launched via
+      RSI_DSH_COMMAND; merged over benchmarks/arc-agi/config_dsh.yaml.
+
+benchmarks:
+  arc_agi:
+    dataset_fpath: benchmarks/arc-agi/data/rsi/arc_agi_train.jsonl
+    holdout_dataset_fpath: benchmarks/arc-agi/data/rsi/arc_agi_holdout.jsonl
+    dataset_version: arc-agi-eval-rsi-split-1
+    config_paths:
+      - benchmarks/arc-agi/config_dsh.yaml
+    source_paths:
+      - benchmarks/arc-agi
+      - resources_servers/arc_agi
+      - responses_api_agents/dsh_agent
+    task_id_field: task_id
+    # Probe subset of the train split: 8 of the 320 train tasks per probe evaluation
+    # (design §3.7 budget carried over from the v0 E2E profile).
+    probe_split_size: 8
+
+tiers:
+  # Single-task rollouts measured 242-701s; concurrency 4 matches the agent's
+  # configured concurrency in benchmarks/arc-agi/config_dsh.yaml. num_repeats=1:
+  # the verifier is deterministic, so repeats only resample decoding noise at
+  # full token cost (~500k output tokens per task).
+  probe: {limit: 4, num_repeats: 1, concurrency: 4, allowed_splits: [train_probe]}
+  screen: {limit: 16, num_repeats: 1, concurrency: 4, allowed_splits: [train_probe, train_full]}
+  full: {limit: 64, num_repeats: 1, concurrency: 4, allowed_splits: [train_full]}
+
+budgets:
+  split_eval_soft_limit: 10
+  lineage_max_evals: 200
+  lineage_max_tokens: 2000000000

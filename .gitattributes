@@ -1,0 +1,16 @@
+* text=auto eol=lf
+
+benchmarks/osworld/tools/*.sh text eol=lf
+responses_api_agents/osworld_agent/*.sh text eol=lf
+
+# Overlay contents are content-addressed. Keep text payloads LF on every
+# platform so Git checkout settings cannot invalidate tree_sha256.
+overlay/** text eol=lf
+
+# Shell entry points are executed by Linux/WSL runners.
+scripts/*.sh text eol=lf
+scripts/ci/*.sh text eol=lf
+scripts/refactor/*.sh text eol=lf
+
+# Zip environment packages are binary assets; never EOL-normalize them.
+overlay/**/*.zip -text

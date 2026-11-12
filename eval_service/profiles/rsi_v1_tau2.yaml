@@ -1,0 +1,60 @@
+# RSI profile for the existing τ² text domains. Prepare the upstream dataset,
+# then create a project-local search/holdout split before starting the service.
+profile_id: rsi-v1-tau2
+
+adapters:
+  remote:
+    harness_agent: rsi_tau_agent
+    version: "tau2-rsi-chat-v2"
+    config_paths:
+      - responses_api_models/openai_model/configs/rsi_agent_chat_endpoint.yaml
+    source_paths:
+      - responses_api_models/openai_model
+    manifest_env: [RSI_AGENT_CHAT_BASE_URL, RSI_AGENT_CHAT_MODEL]
+    description: RSI candidate exposed as a Chat Completions endpoint for Tau turns.
+  dsh_chat:
+    harness_agent: rsi_tau_agent
+    version: "tau2-rsi-dsh-chat-v1"
+    config_paths:
+      - responses_api_models/openai_model/configs/rsi_agent_chat_endpoint.yaml
+    source_paths:
+      - responses_api_models/dsh_candidate_bridge
+      - responses_api_agents/dsh_agent/session_usage.py
+    manifest_env: [RSI_AGENT_CHAT_BASE_URL, RSI_AGENT_CHAT_MODEL, RSI_CANDIDATE_ID, RSI_DSH_COMMAND, RSI_DSH_HOME]
+    description: Tau turns via Chat Completions bridge to the materialized RSI DSH candidate.
+
+benchmarks:
+  tau2:
+    dataset_fpath: benchmarks/tau2/data/rsi/tau2_train.jsonl
+    holdout_dataset_fpath: benchmarks/tau2/data/rsi/tau2_holdout.jsonl
+    dataset_version: tau2-2026-gym-rsi-split-1
+    config_paths:
+      - benchmarks/tau2/configs/rsi_tau2.yaml
+    source_paths:
+      - benchmarks/tau2
+      - responses_api_agents/tau2
+    manifest_env: [TAU_USER_BASE_URL, TAU_USER_MODEL_NAME, TAU_USER_THINKING_TYPE, RSI_TAU_MAX_STEPS]
+    task_id_field: task_id
+    probe_split_size: 8
+  tau3_banking_bm25_grep:
+    dataset_fpath: benchmarks/tau2/data/rsi/tau3_banking_train.jsonl
+    holdout_dataset_fpath: benchmarks/tau2/data/rsi/tau3_banking_holdout.jsonl
+    dataset_version: tau3-banking-v1.0.1-rsi-split-1
+    config_paths:
+      - benchmarks/tau2/configs/rsi_banking_bm25_grep.yaml
+    source_paths:
+      - benchmarks/tau2
+      - responses_api_agents/tau2
+    manifest_env: [TAU_USER_BASE_URL, TAU_USER_MODEL_NAME, TAU_USER_THINKING_TYPE, RSI_TAU_MAX_STEPS]
+    task_id_field: task_id
+    probe_split_size: 4
+
+tiers:
+  probe: {limit: 4, num_repeats: 1, concurrency: 1, allowed_splits: [train_probe]}
+  screen: {limit: 16, num_repeats: 1, concurrency: 2, allowed_splits: [train_probe, train_full]}
+  full: {limit: 64, num_repeats: 2, concurrency: 2, allowed_splits: [train_full]}
+
+budgets:
+  split_eval_soft_limit: 10
+  lineage_max_evals: 200
+  lineage_max_tokens: 2000000000

@@ -1,0 +1,31 @@
+# RSI candidate and the simulated user are separate model-server instances.
+config_paths:
+  - responses_api_agents/tau2/configs/tau2.yaml
+
+rsi_tau_user_model:
+  responses_api_models:
+    openai_model:
+      entrypoint: app.py
+      openai_base_url: ${oc.env:TAU_USER_BASE_URL}
+      openai_api_key: ${oc.env:TAU_USER_API_KEY}
+      openai_model: ${oc.env:TAU_USER_MODEL_NAME}
+      extra_body:
+        thinking:
+          type: ${oc.env:TAU_USER_THINKING_TYPE,disabled}
+
+rsi_tau_agent:
+  _inherit_from: tau2_agent
+  responses_api_agents:
+    tau2:
+      model_server: {type: responses_api_models, name: rsi_agent_endpoint}
+      user_model_server: {type: responses_api_models, name: rsi_tau_user_model}
+      num_workers: 1
+      max_steps: ${oc.decode:${oc.env:RSI_TAU_MAX_STEPS,200}}
+      print_step_counts: true
+      datasets:
+        - name: tau2
+          type: benchmark
+          jsonl_fpath: benchmarks/tau2/data/tau2_benchmark.jsonl
+          prompt_config: null
+          prepare_script: benchmarks/tau2/prepare.py
+          num_repeats: 8

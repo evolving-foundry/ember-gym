@@ -1,0 +1,3 @@
+# BrowserGym and WorkArena require Playwright 1.44. Its pinned greenlet 3.0.3
+# does not build on Gym's Python 3.13; use a greenlet release with 3.13 wheels.
+greenlet==3.5.6

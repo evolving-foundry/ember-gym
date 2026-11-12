@@ -1,0 +1,22 @@
+arc_agi:
+  resources_servers:
+    arc_agi:
+      entrypoint: app.py
+      domain: other
+      verified: false
+      description: ARC-AGI abstraction-and-reasoning grid puzzles with deterministic exact-match verification
+      value: Improve abstract reasoning and pattern induction
+arc_agi_simple_agent:
+  responses_api_agents:
+    simple_agent:
+      entrypoint: app.py
+      resources_server:
+        type: resources_servers
+        name: arc_agi
+      model_server:
+        type: responses_api_models
+        name: policy_model
+      datasets:
+      - name: example
+        type: example
+        jsonl_fpath: resources_servers/arc_agi/data/example.jsonl

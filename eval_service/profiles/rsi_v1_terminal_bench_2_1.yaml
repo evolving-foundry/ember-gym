@@ -1,0 +1,50 @@
+# Terminal-Bench 2.1 with task-disjoint RSI holdout.
+profile_id: rsi-v1-terminal-bench-2-1
+
+adapters:
+  terminus_2:
+    harness_agent: terminal_bench_2_1_terminus_2_sandboxed_agent
+    version: "terminal-bench-2.1-terminus-2"
+    config_paths:
+      - responses_api_agents/terminus_2_sandboxed_agent/configs/terminus_2_sandboxed_agent.yaml
+      - responses_api_models/openai_model/configs/rsi_policy_endpoint.yaml
+    manifest_env: [RSI_AGENT_BASE_URL, RSI_AGENT_MODEL]
+    source_paths:
+      - responses_api_agents/terminus_2_sandboxed_agent
+      - responses_api_models/openai_model
+    description: Terminus 2 loop using the activated RSI candidate policy endpoint.
+  dsh_responses:
+    harness_agent: terminal_bench_2_1_terminus_2_sandboxed_agent
+    version: "terminal-bench-2.1-terminus-2-dsh-responses-v1"
+    config_paths:
+      - responses_api_models/openai_model/configs/rsi_policy_endpoint.yaml
+      - agent_gym/configs/sandbox/docker.yaml
+    source_paths:
+      - responses_api_models/dsh_candidate_bridge
+      - responses_api_agents/dsh_agent/session_usage.py
+    manifest_env: [RSI_AGENT_BASE_URL, RSI_AGENT_MODEL, RSI_CANDIDATE_ID, RSI_DSH_COMMAND, RSI_DSH_HOME, RSI_TERMINUS_MAX_TURNS, RSI_TMUX_VOLUMES, RSI_REMOTE_TMUX_BINARY_PATH]
+    description: Terminus 2 loop calling the materialized RSI DSH candidate through Responses.
+
+benchmarks:
+  terminal_bench_2_1:
+    dataset_fpath: benchmarks/terminal_bench_2_1/data/rsi/terminal_bench_2_1_train.jsonl
+    holdout_dataset_fpath: benchmarks/terminal_bench_2_1/data/rsi/terminal_bench_2_1_holdout.jsonl
+    dataset_version: terminal-bench-2.1-rsi-split-1
+    config_paths:
+      - benchmarks/terminal_bench_2_1/terminus_2.yaml
+    source_paths:
+      - benchmarks/terminal_bench_2_1
+      - resources_servers/terminal_bench_2_1
+      - responses_api_agents/terminus_2_sandboxed_agent
+    task_id_field: task_id
+    probe_split_size: 8
+
+tiers:
+  probe: {limit: 4, num_repeats: 1, concurrency: 1, allowed_splits: [train_probe]}
+  screen: {limit: 16, num_repeats: 1, concurrency: 1, allowed_splits: [train_probe, train_full]}
+  full: {limit: 64, num_repeats: 2, concurrency: 1, allowed_splits: [train_full]}
+
+budgets:
+  split_eval_soft_limit: 10
+  lineage_max_evals: 200
+  lineage_max_tokens: 2000000000

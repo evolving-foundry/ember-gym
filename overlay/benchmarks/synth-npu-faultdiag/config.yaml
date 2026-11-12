@@ -1,0 +1,14 @@
+config_paths:
+- resources_servers/synth_env/configs/synth_env.yaml
+- responses_api_agents/synth_env_agent/configs/synth_env_agent.yaml
+- responses_api_models/openai_model/configs/openai_model.yaml
+synth_npu_faultdiag_agent:
+  _inherit_from: synth_env_agent
+  responses_api_agents:
+    synth_env_agent:
+      datasets:
+      - name: synth-npu-faultdiag
+        type: benchmark
+        jsonl_fpath: benchmarks/synth-npu-faultdiag/data/synth-npu-faultdiag.jsonl
+        prompt_config: benchmarks/prompts/synth-npu-faultdiag/agent.yaml
+        prepare_script: benchmarks/synth-npu-faultdiag/prepare.py

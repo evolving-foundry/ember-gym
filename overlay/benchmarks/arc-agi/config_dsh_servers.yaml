@@ -1,0 +1,34 @@
+# arc-agi dsh 链路的 `gym env start` 专用 server 配置(与 config_dsh.yaml 的差别)。
+# `gym eval run --no-serve` 不自起 server,要求外部先有 head server + 全部 server 实例;
+# 本文件即供 `gym env start` 预拉起使用。不能直接用 config_dsh.yaml,原因有二:
+#   1. RunHelper.start 遍历所有带 entrypoint 的顶层键并逐个 setup_env_command,policy_model
+#      的 dummy_model(NO_MODEL 形状,仅为让合并校验可解析而存在)没有 install marker
+#      (requirements.txt/pyproject.toml),setup_env_command 直接 RuntimeError 中止整个启动;
+#   2. 链式 configs/arc_agi.yaml 会带进 arc_agi_simple_agent,它引用 model_server
+#      policy_model → 又回到 dummy_model 问题;本路径不需要它(不被 --agent 选中)。
+# 因此不链 configs/arc_agi.yaml,直接内联 arc_agi 资源 server 基础定义(_inherit_from 锚点),
+# 合并后只有 arc_agi_resources_server 与 arc_agi_dsh_agent 两个实例,无需任何 model。
+# 采集进程(collect_rollouts)无注入 env 时会从 head server /global_config_dict_yaml 拉取
+# 生效 config 并按其中 host/port 解析 agent 与 resources server 的 URL,实例名与
+# config_dsh.yaml 保持一致。
+arc_agi:
+  resources_servers:
+    arc_agi:
+      entrypoint: app.py
+      domain: other
+      verified: false
+      description: ARC-AGI abstraction-and-reasoning grid puzzles with deterministic exact-match verification
+      value: Improve abstract reasoning and pattern induction
+
+arc_agi_resources_server:
+  _inherit_from: arc_agi
+
+arc_agi_dsh_agent:
+  responses_api_agents:
+    dsh_agent:
+      entrypoint: app.py
+      resources_server:
+        type: resources_servers
+        name: arc_agi_resources_server
+      concurrency: 4
+      timeout: 1800

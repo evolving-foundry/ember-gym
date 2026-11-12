@@ -1,0 +1,23 @@
+# Serving variant of the v2 config_dsh.yaml with pinned host/port for every server
+# instance: `gym env start` binds these, and the eval_service runner resolves the
+# identical URLs from the running stack's discovery endpoint.
+config_paths:
+- benchmarks/synth-npu-faultdiag-v2/config_dsh.yaml
+
+synth_env:
+  resources_servers:
+    synth_env:
+      host: 127.0.0.1
+      port: 19400
+
+synth_npu_faultdiag_v2_dsh_agent:
+  responses_api_agents:
+    dsh_agent:
+      host: 127.0.0.1
+      port: 19401
+
+synth_npu_faultdiag_v2_environment_server:
+  environment_servers:
+    legacy_agent:
+      host: 127.0.0.1
+      port: 19402

@@ -1,0 +1,35 @@
+# Purpose-built E2E profile: external dsh(TS) RSI outer loop → eval_service → real gym rollouts
+# on the npu-faultdiag@v2 synthetic environment (information-rich fault-diagnosis package).
+# Mirrors rsi_v0_synth_npu_faultdiag_e2e.yaml with the v2 benchmark: same server topology and
+# names (the running stack's discovery resolves URLs), same dsh adapter semantics (volcano
+# credentials from $DSH_HOME/settings.yaml, per-rollout MCP session token via --patch).
+# v2 tasks are non-trivial by construction: the goal carries only symptoms/component/error
+# signature, so the agent must two-hop search (tickets x kb_articles) and use record_diagnosis.
+profile_id: rsi-v0-synth-npu-faultdiag-v2
+
+adapters:
+  dsh:
+    # harness_agent is the composition key the running config registers the agent under
+    # (top-level `synth_npu_faultdiag_v2_dsh_agent` in the v2 config_dsh.yaml).
+    harness_agent: synth_npu_faultdiag_v2_dsh_agent
+    version: "1"
+    config_paths:
+      - benchmarks/synth-npu-faultdiag-v2/config_dsh.yaml
+    description: >-
+      dsh CLI harness (headless one-shot subprocess, self-held volcano credentials) wired to
+      the synth_env server stack (npu-faultdiag@v2 office package) over a per-rollout MCP
+      session token.
+
+benchmarks:
+  synth-npu-faultdiag-v2:
+    dataset_fpath: tmp/e2e_faultdiag/data/synth-npu-faultdiag-v2_dsh_materialized.jsonl
+    # OF-2: no holdout registered for E2E — the promotion pipeline is out of scope here.
+    holdout_dataset_fpath: null
+    dataset_version: v2026.11.05
+    config_paths: []
+    probe_split_size: 4
+
+budgets:
+  split_eval_soft_limit: 10
+  lineage_max_evals: 500
+  lineage_max_tokens: 2000000000

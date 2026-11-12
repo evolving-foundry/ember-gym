@@ -1,0 +1,2 @@
+-e agent-gym[dev,sandbox] @ ../../
+harbor==0.22.0

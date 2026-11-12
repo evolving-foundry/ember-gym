@@ -1,0 +1,9 @@
+# Online BrowserGym composition. The agent receives only the public validation task IDs.
+browsergym_agent:
+  responses_api_agents:
+    browsergym_agent:
+      datasets:
+        - name: assistantbench_validation
+          type: benchmark
+          jsonl_fpath: benchmarks/assistantbench/data/rsi/assistantbench_validation_train.jsonl
+          prepare_script: benchmarks/assistantbench/prepare.py

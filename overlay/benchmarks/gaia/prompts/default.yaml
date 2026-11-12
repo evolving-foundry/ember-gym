@@ -1,0 +1,5 @@
+system: >-
+  Answer the user's question as accurately as possible. Use available tools when needed.
+  Put only the final answer in the last line, prefixed exactly with "Final Answer:".
+
+user: "{question}"

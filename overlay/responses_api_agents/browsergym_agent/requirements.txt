@@ -1,0 +1,12 @@
+# BrowserGym 0.14.4 is pinned to its upstream commit until matching wheels are published.
+# Install all BrowserGym packages from the same commit to keep task registration consistent.
+-e agent-gym[dev] @ ../../
+browsergym-core @ git+https://github.com/ServiceNow/BrowserGym.git@c05d7f38f4f788d6e4ee960512c3d5c8aabc6e42#subdirectory=browsergym/core
+browsergym-assistantbench @ git+https://github.com/ServiceNow/BrowserGym.git@c05d7f38f4f788d6e4ee960512c3d5c8aabc6e42#subdirectory=browsergym/assistantbench
+browsergym-webarena @ git+https://github.com/ServiceNow/BrowserGym.git@c05d7f38f4f788d6e4ee960512c3d5c8aabc6e42#subdirectory=browsergym/webarena
+browsergym-webarena-verified @ git+https://github.com/ServiceNow/BrowserGym.git@c05d7f38f4f788d6e4ee960512c3d5c8aabc6e42#subdirectory=browsergym/webarena_verified
+browsergym-workarena==0.5.3
+webarena-verified @ git+https://github.com/ServiceNow/webarena-verified.git@6473f72db5dcefc97b5725b59e734504edc28a21
+nltk==3.10.3
+wcwidth==0.9.2
+zstandard>=0.22
